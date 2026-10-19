@@ -25,6 +25,7 @@ export function HostLoginScreen() {
 
   return (
     <Screen
+      backTo="/"
       cta={
         <PrimaryButton type="submit" form="host-login">
           Login
@@ -105,7 +106,7 @@ export function HostSignupScreen() {
 export function DashboardScreen() {
   const navigate = useNavigate();
   return (
-    <Screen>
+    <Screen backTo="/host-login">
       <h1 className="screen-title">MumbaiAndarground</h1>
       <div className="stats">
         <div className="stat">
@@ -159,7 +160,7 @@ export function EventsScreen() {
   const [tab, setTab] = useState("past");
   const events = hostEvents[tab];
   return (
-    <Screen>
+    <Screen backTo="/host">
       <h1 className="screen-title">Events</h1>
       <EventTabs tab={tab} setTab={setTab} />
       {events.map((event) => (
@@ -178,7 +179,7 @@ export function EventsScreen() {
 
 export function FinanceScreen() {
   return (
-    <Screen>
+    <Screen backTo="/host">
       <h1 className="screen-title">Finance Management</h1>
       <div className="finance-list">
         <div className="finance-row">Available Balance: $3,400</div>
@@ -199,7 +200,7 @@ export function SendCommsScreen() {
   const [tab, setTab] = useState("past");
   const events = hostEvents[tab];
   return (
-    <Screen>
+    <Screen backTo="/host">
       <h1 className="screen-title">Send Comms</h1>
       <EventTabs tab={tab} setTab={setTab} />
       {events.map((event) => (

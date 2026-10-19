@@ -49,7 +49,7 @@ export function Dash() {
 export function BackButton({ to = -1, label }) {
   const navigate = useNavigate();
   return (
-    <button className="back" type="button" onClick={() => navigate(to)}>
+    <button className="back" type="button" aria-label={label || "Back"} onClick={() => navigate(to)}>
       <Chevron />
       {label ? <span>{label}</span> : null}
     </button>
@@ -78,9 +78,17 @@ function fillDigits(value, length) {
   return value.replace(/\D/g, "").slice(0, length).padEnd(length, " ");
 }
 
-export function CodeBoxes({ value, onChange, labelledBy }) {
+function fillCode(value, length) {
+  return value
+    .replace(/[^a-zA-Z0-9]/g, "")
+    .toUpperCase()
+    .slice(0, length)
+    .padEnd(length, " ");
+}
+
+export function CodeBoxes({ value, onChange, labelledBy, length = 10 }) {
   const refs = useRef([]);
-  const digits = fillDigits(value, 6).split("");
+  const digits = fillCode(value, length).split("");
 
   function write(index, nextChar) {
     const next = digits.slice();
@@ -89,27 +97,27 @@ export function CodeBoxes({ value, onChange, labelledBy }) {
   }
 
   function onDigitChange(index, raw) {
-    const cleaned = raw.replace(/\D/g, "");
+    const cleaned = raw.replace(/[^a-zA-Z0-9]/g, "").toUpperCase();
     if (!cleaned) {
       write(index, "");
       return;
     }
     const next = digits.slice();
     cleaned.split("").forEach((char, offset) => {
-      if (index + offset < 6) next[index + offset] = char;
+      if (index + offset < length) next[index + offset] = char;
     });
-    onChange(next.join(""));
-    const focusIndex = Math.min(index + cleaned.length, 5);
+    onChange(next.join("").replace(/\s/g, ""));
+    const focusIndex = Math.min(index + cleaned.length, length - 1);
     refs.current[focusIndex]?.focus();
   }
 
   function onKeyDown(index, event) {
-    if (event.key === "Backspace" && !digits[index] && index > 0) {
+    if (event.key === "Backspace" && !digits[index].trim() && index > 0) {
       write(index - 1, "");
       refs.current[index - 1]?.focus();
     }
     if (event.key === "ArrowLeft" && index > 0) refs.current[index - 1]?.focus();
-    if (event.key === "ArrowRight" && index < 5) refs.current[index + 1]?.focus();
+    if (event.key === "ArrowRight" && index < length - 1) refs.current[index + 1]?.focus();
   }
 
   return (
@@ -121,10 +129,11 @@ export function CodeBoxes({ value, onChange, labelledBy }) {
             refs.current[index] = node;
           }}
           className="code-box"
-          inputMode="numeric"
-          autoComplete="one-time-code"
-          aria-label={`Code digit ${index + 1}`}
-          maxLength={1}
+          inputMode="text"
+          autoCapitalize="characters"
+          autoComplete="off"
+          aria-label={`Code character ${index + 1}`}
+          maxLength={length}
           value={digit.trim()}
           onChange={(event) => onDigitChange(index, event.target.value)}
           onKeyDown={(event) => onKeyDown(index, event)}

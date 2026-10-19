@@ -1,6 +1,7 @@
 import { createContext, useContext, useMemo, useState } from "react";
 
-export const TICKET_CODE = "123123";
+export const TICKET_CODE = "123123AB12";
+export const CODE_LENGTH = TICKET_CODE.length;
 
 export const COMM_GUEST = {
   name: "Prabhas Gade",
@@ -46,6 +47,8 @@ export function AppState({ children }) {
   const [messages, setMessages] = useState(INITIAL_MESSAGES);
   const [guest, setGuest] = useState(COMM_GUEST);
   const [hosts, setHosts] = useState([HOST]);
+  const [purchases, setPurchases] = useState([]);
+  const [commAccess, setCommAccess] = useState(false);
 
   const api = useMemo(
     () => ({
@@ -53,6 +56,8 @@ export function AppState({ children }) {
       guest,
       setGuest,
       hosts,
+      commAccess,
+      hasTicket: purchases.length > 0,
       toggleRead(id) {
         setMessages((current) =>
           current.map((message) =>
@@ -66,8 +71,30 @@ export function AppState({ children }) {
       registerHost(host) {
         setHosts((current) => [...current, host]);
       },
+      addPurchase({ name, phone }) {
+        const ticket = {
+          name: name.trim(),
+          phone: phone.replace(/\D/g, ""),
+          code: TICKET_CODE,
+        };
+        setPurchases((current) => [...current, ticket]);
+      },
+      matchesPurchase(name, phone, code) {
+        const normalizedName = name.trim().toLowerCase();
+        const normalizedPhone = phone.replace(/\D/g, "");
+        const normalizedCode = code.replace(/[^a-zA-Z0-9]/g, "").toUpperCase();
+        return purchases.some(
+          (ticket) =>
+            ticket.name.toLowerCase() === normalizedName &&
+            ticket.phone === normalizedPhone &&
+            ticket.code === normalizedCode,
+        );
+      },
+      grantCommAccess() {
+        setCommAccess(true);
+      },
     }),
-    [messages, guest, hosts],
+    [messages, guest, hosts, purchases, commAccess],
   );
 
   return <AppContext.Provider value={api}>{children}</AppContext.Provider>;

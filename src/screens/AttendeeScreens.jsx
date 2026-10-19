@@ -1,24 +1,12 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useRef, useState } from "react";
+import { Navigate, useNavigate } from "react-router-dom";
 import { publicEvent } from "../data";
-import { COMM_GUEST, TICKET_CODE, useApp } from "../state";
+import { CODE_LENGTH, TICKET_CODE, useApp } from "../state";
 import cardUrl from "../assets/card.png";
 import { CodeBoxes, MessageList, PhoneField, PrimaryButton, Screen } from "../components/ui";
 
-export function HomeScreen() {
+function HomeFace({ code, onCode, error }) {
   const navigate = useNavigate();
-  const [code, setCode] = useState("");
-  const [error, setError] = useState("");
-
-  function onCode(next) {
-    const digits = next.replace(/\D/g, "");
-    setCode(digits);
-    setError("");
-    if (digits.length < 6) return;
-    if (digits === TICKET_CODE) navigate("/event");
-    else setError("Enter 123123.");
-  }
-
   return (
     <Screen
       cta={<PrimaryButton onClick={() => navigate("/comm-login")}>Comm Center</PrimaryButton>}
@@ -28,10 +16,73 @@ export function HomeScreen() {
       </button>
       <div className="home-code">
         <p id="enter-code">Enter Code</p>
-        <CodeBoxes value={code} onChange={onCode} labelledBy="enter-code" />
+        <CodeBoxes value={code} onChange={onCode} labelledBy="enter-code" length={CODE_LENGTH} />
         {error ? <p className="note">{error}</p> : null}
       </div>
     </Screen>
+  );
+}
+
+export function HomeScreen() {
+  const navigate = useNavigate();
+  const [code, setCode] = useState("");
+  const [error, setError] = useState("");
+  const [phase, setPhase] = useState("idle");
+  const splitDone = useRef(false);
+
+  function onCode(next) {
+    const entered = next.replace(/[^a-zA-Z0-9]/g, "").toUpperCase();
+    setCode(entered);
+    setError("");
+    if (entered.length < CODE_LENGTH) return;
+    if (entered !== TICKET_CODE) {
+      setError(`Enter ${TICKET_CODE}.`);
+      return;
+    }
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      navigate("/event");
+      return;
+    }
+    setPhase("split");
+  }
+
+  function onSplitEnd(event) {
+    if (event.animationName !== "home-split-left" || splitDone.current) return;
+    splitDone.current = true;
+    setPhase("reveal");
+  }
+
+  function onFadeEnd(event) {
+    if (event.animationName !== "ticket-fade-in") return;
+    navigate("/event", { replace: true });
+  }
+
+  if (phase === "idle") {
+    return <HomeFace code={code} onCode={onCode} error={error} />;
+  }
+
+  return (
+    <div className="reveal-stage">
+      <div className="reveal-black" />
+      {phase === "reveal" ? (
+        <div className="reveal-event" onAnimationEnd={onFadeEnd}>
+          <EventScreen />
+        </div>
+      ) : (
+        <div className="split-overlay" aria-hidden="true" inert>
+          <div className="split-half left" onAnimationEnd={onSplitEnd}>
+            <div className="split-pane">
+              <HomeFace code={code} onCode={() => {}} />
+            </div>
+          </div>
+          <div className="split-half right">
+            <div className="split-pane">
+              <HomeFace code={code} onCode={() => {}} />
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -53,7 +104,7 @@ export function EventScreen() {
 
 export function CheckoutScreen() {
   const navigate = useNavigate();
-  const { guest, setGuest } = useApp();
+  const { guest, setGuest, addPurchase } = useApp();
   const [error, setError] = useState("");
   const total = publicEvent.ticket + publicEvent.fee;
 
@@ -63,6 +114,7 @@ export function CheckoutScreen() {
       setError("Enter your name and phone number.");
       return;
     }
+    addPurchase({ name: guest.name, phone: guest.phone });
     navigate("/comm-login");
   }
 
@@ -123,7 +175,7 @@ export function CheckoutScreen() {
           <p className="total">${total}</p>
         </div>
         <p className="note">
-          Note: Use the same Name and Phone Number, and 6-Digit Code to log into comm dashboard
+          Note: Use the same Name and Phone Number, and 10-character code to log into comm dashboard
         </p>
         {error ? <p className="note">{error}</p> : null}
       </form>
@@ -133,19 +185,21 @@ export function CheckoutScreen() {
 
 export function CommLoginScreen() {
   const navigate = useNavigate();
-  const { guest, setGuest } = useApp();
+  const { guest, setGuest, matchesPurchase, grantCommAccess, hasTicket } = useApp();
   const [code, setCode] = useState("");
   const [error, setError] = useState("");
 
   function submit(event) {
     event.preventDefault();
-    const nameOk = guest.name.trim().toLowerCase() === COMM_GUEST.name.toLowerCase();
-    const phoneOk = guest.phone.replace(/\D/g, "") === COMM_GUEST.phone;
-    const codeOk = code.replace(/\D/g, "") === TICKET_CODE;
-    if (!nameOk || !phoneOk || !codeOk) {
-      setError("Use Prabhas Gade, 5555555555, and code 123123.");
+    if (!matchesPurchase(guest.name, guest.phone, code)) {
+      setError(
+        hasTicket
+          ? "Use the same name, phone number, and code from your ticket."
+          : "Buy a ticket first, then use that same name, phone number, and code.",
+      );
       return;
     }
+    grantCommAccess();
     navigate("/comm");
   }
 
@@ -181,7 +235,7 @@ export function CommLoginScreen() {
           <span className="field-label" id="login-code">
             Enter Code
           </span>
-          <CodeBoxes value={code} onChange={setCode} labelledBy="login-code" />
+          <CodeBoxes value={code} onChange={setCode} labelledBy="login-code" length={CODE_LENGTH} />
         </div>
         {error ? <p className="note">{error}</p> : null}
       </form>
@@ -190,7 +244,8 @@ export function CommLoginScreen() {
 }
 
 export function CommCenterScreen() {
-  const { messages, toggleRead } = useApp();
+  const { messages, toggleRead, commAccess } = useApp();
+  if (!commAccess) return <Navigate to="/comm-login" replace />;
   return (
     <Screen backTo="/" backLabel="enter new event">
       <h1 className="screen-title">Comm Center</h1>

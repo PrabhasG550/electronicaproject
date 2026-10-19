@@ -40,7 +40,8 @@ html,
 body,
 #root {
   margin: 0;
-  min-height: 100%;
+  height: 100%;
+  background: #fff;
 }
 
 button,
@@ -55,29 +56,18 @@ button {
   cursor: pointer;
 }
 
-.stage {
-  height: 100dvh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-}
-
-.phone-slot {
-  width: min(393px, calc((100dvh - 16px) * 393 / 852));
-  height: min(852px, calc(100dvh - 16px));
-  overflow: hidden;
+.stage,
+.phone-slot,
+.phone {
+  width: 100%;
+  height: 100%;
+  min-height: 100svh;
+  background: #fff;
 }
 
 .phone {
-  width: 393px;
-  height: 852px;
-  background: #fff;
   position: relative;
   overflow: hidden;
-  transform: scale(min(1, (100dvh - 16px) / 852px));
-  transform-origin: top left;
-  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.12);
 }
 
 .screen {
@@ -89,6 +79,8 @@ button {
 .screen-scroll {
   height: 100%;
   overflow: auto;
+  display: flex;
+  flex-direction: column;
   scrollbar-width: none;
 }
 
@@ -101,7 +93,7 @@ button {
 }
 
 .screen-title {
-  margin: 84px 40px 0;
+  margin: calc(64px + env(safe-area-inset-top)) 24px 0;
   text-align: center;
   font-size: 24px;
   font-weight: 500;
@@ -110,8 +102,8 @@ button {
 .back {
   position: absolute;
   z-index: 2;
-  top: 23px;
-  left: 14px;
+  top: calc(16px + env(safe-area-inset-top));
+  left: 16px;
   display: inline-flex;
   align-items: center;
   gap: 0;
@@ -130,7 +122,7 @@ button {
 .host-pill {
   position: absolute;
   z-index: 2;
-  top: 77px;
+  top: calc(52px + env(safe-area-inset-top));
   left: 50%;
   transform: translateX(-50%);
   width: 111px;
@@ -145,9 +137,10 @@ button {
 .cta {
   position: absolute;
   z-index: 2;
-  left: 37px;
-  bottom: 88px;
-  width: 319px;
+  left: max(24px, env(safe-area-inset-left));
+  right: max(24px, env(safe-area-inset-right));
+  bottom: calc(24px + env(safe-area-inset-bottom));
+  width: auto;
   height: 55px;
   border: 0;
   border-radius: 10px;
@@ -156,12 +149,104 @@ button {
   font-weight: 500;
 }
 
+.reveal-stage {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: #000;
+}
+
+.reveal-black {
+  position: absolute;
+  inset: 0;
+  background: #000;
+}
+
+.split-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  pointer-events: none;
+}
+
+.split-half {
+  width: 50%;
+  height: 100%;
+  overflow: hidden;
+  background: #fff;
+  animation-duration: 0.8s;
+  animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+  animation-fill-mode: forwards;
+}
+
+.split-half.left {
+  animation-name: home-split-left;
+}
+
+.split-half.right {
+  animation-name: home-split-right;
+}
+
+.split-pane {
+  width: 200%;
+  height: 100%;
+}
+
+.split-half.right .split-pane {
+  transform: translateX(-50%);
+}
+
+.reveal-event {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: #fff;
+  animation: ticket-fade-in 0.7s ease forwards;
+}
+
+@keyframes home-split-left {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-100%);
+  }
+}
+
+@keyframes home-split-right {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes ticket-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .split-half,
+  .reveal-event {
+    animation: none;
+  }
+}
+
 .home-code {
-  margin-top: 365px;
+  flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   gap: 13px;
+  padding: 24px;
 }
 
 .home-code p,
@@ -183,12 +268,19 @@ button {
 }
 
 .code-row {
-  gap: 10px;
+  width: 100%;
+  max-width: 420px;
+  justify-content: center;
+  gap: 6px;
 }
 
 .code-box {
-  width: 25px;
+  flex: 1 1 0;
+  width: auto;
+  min-width: 0;
+  max-width: 34px;
   height: 35px;
+  text-transform: uppercase;
   padding: 0;
   border: 0;
   border-radius: 2px;
@@ -199,7 +291,7 @@ button {
 }
 
 .stack {
-  width: 321px;
+  width: min(560px, calc(100% - 48px));
   margin: 0 auto;
 }
 
@@ -235,7 +327,7 @@ button {
 .text-input,
 .area-input,
 .country {
-  width: 317px;
+  width: 100%;
   max-width: 100%;
   height: 29px;
   border: 0;
@@ -270,11 +362,13 @@ button {
 }
 
 .phone-row {
-  gap: 6px;
+  width: 100%;
+  gap: 4px;
 }
 
 .country {
-  width: 42px;
+  width: 52px;
+  flex: none;
   padding: 0 2px 0 1px;
   display: inline-flex;
   align-items: center;
@@ -295,7 +389,10 @@ button {
 }
 
 .digit {
-  width: 19px;
+  flex: 1 1 0;
+  width: auto;
+  min-width: 0;
+  max-width: 36px;
   height: 29px;
   padding: 0;
   border: 0;
@@ -308,7 +405,9 @@ button {
 
 .phone-row .group {
   display: flex;
-  gap: 6px;
+  flex: 1;
+  min-width: 0;
+  gap: 4px;
 }
 
 .dash {
@@ -317,14 +416,16 @@ button {
 }
 
 .poster {
-  width: 255px;
-  height: 340px;
-  margin: 78px auto 28px;
+  width: min(255px, 70vw);
+  height: auto;
+  aspect-ratio: 255 / 340;
+  max-height: 42svh;
+  margin: calc(64px + env(safe-area-inset-top)) auto 28px;
   background: #d9d9d9;
 }
 
 .event-copy {
-  width: 314px;
+  width: min(640px, calc(100% - 48px));
   margin: 0 auto;
 }
 
@@ -384,6 +485,15 @@ button {
   font-size: 64px;
   font-weight: 300;
   line-height: 1;
+}
+
+.list,
+.stats,
+.menu,
+.tabs,
+.finance-list,
+.event-summary {
+  width: 100%;
 }
 
 .list {
@@ -446,7 +556,7 @@ button {
   border-bottom: 1px solid #000;
   display: flex;
   justify-content: space-between;
-  padding: 8px 74px;
+  padding: 8px clamp(24px, 12vw, 74px);
 }
 
 .tab {
@@ -567,7 +677,7 @@ button {
 
 .msg-body {
   margin-top: 6px;
-  width: 314px;
+  width: min(640px, 100%);
   max-width: 100%;
 }
 
@@ -624,21 +734,3 @@ textarea:focus-visible {
   outline-offset: 2px;
 }
 
-@media (max-width: 480px) {
-  .stage {
-    background: #fff;
-  }
-
-  .phone-slot {
-    width: min(100vw, calc((100dvh - 16px) * 393 / 852));
-  }
-
-  .phone {
-    box-shadow: none;
-  }
-
-  .cta {
-    left: 37px;
-    width: calc(100% - 74px);
-  }
-}
