@@ -47,7 +47,7 @@ export function AppState({ children }) {
   const [messages, setMessages] = useState(INITIAL_MESSAGES);
   const [guest, setGuest] = useState(COMM_GUEST);
   const [hosts, setHosts] = useState([HOST]);
-  const [purchases, setPurchases] = useState([]);
+  const [, setPurchases] = useState([]);
   const [commAccess, setCommAccess] = useState(false);
 
   const api = useMemo(
@@ -57,7 +57,6 @@ export function AppState({ children }) {
       setGuest,
       hosts,
       commAccess,
-      hasTicket: purchases.length > 0,
       toggleRead(id) {
         setMessages((current) =>
           current.map((message) =>
@@ -79,22 +78,11 @@ export function AppState({ children }) {
         };
         setPurchases((current) => [...current, ticket]);
       },
-      matchesPurchase(name, phone, code) {
-        const normalizedName = name.trim().toLowerCase();
-        const normalizedPhone = phone.replace(/\D/g, "");
-        const normalizedCode = code.replace(/[^a-zA-Z0-9]/g, "").toUpperCase();
-        return purchases.some(
-          (ticket) =>
-            ticket.name.toLowerCase() === normalizedName &&
-            ticket.phone === normalizedPhone &&
-            ticket.code === normalizedCode,
-        );
-      },
       grantCommAccess() {
         setCommAccess(true);
       },
     }),
-    [messages, guest, hosts, purchases, commAccess],
+    [messages, guest, hosts, commAccess],
   );
 
   return <AppContext.Provider value={api}>{children}</AppContext.Provider>;

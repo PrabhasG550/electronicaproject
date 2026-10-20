@@ -47,7 +47,7 @@ export function EventScreen() {
       <Screen
         backTo="/"
         backState={{ glass: true }}
-        cta={<PrimaryButton onClick={() => navigate("/checkout")}>Buy Tickets</PrimaryButton>}
+        cta={<PrimaryButton onClick={() => navigate("/checkout", { state: { glass: true } })}>Buy Tickets</PrimaryButton>}
       >
         <div className="poster" role="img" aria-label="Event image" />
         <div className="event-copy">
@@ -61,29 +61,32 @@ export function EventScreen() {
 
 export function CheckoutScreen() {
   const navigate = useNavigate();
+  const glass = useGlassEnter();
   const { guest, setGuest, addPurchase } = useApp();
   const [error, setError] = useState("");
   const total = publicEvent.ticket + publicEvent.fee;
 
   function pay(event) {
     event.preventDefault();
-    if (!guest.name.trim() || guest.phone.replace(/\D/g, "").length < 10) {
+    if (!guest.name.trim() || guest.phone.replace(/\D/g, "").length < 1) {
       setError("Enter your name and phone number.");
       return;
     }
     addPurchase({ name: guest.name, phone: guest.phone });
-    navigate("/comm-login");
+    navigate("/comm-login", { state: { glass: true } });
   }
 
   return (
-    <Screen
-      backTo="/event"
-      cta={
-        <PrimaryButton type="submit" form="checkout-form">
-          Pay ${total}
-        </PrimaryButton>
-      }
-    >
+    <div className={glass ? "glass-in" : "event-screen"}>
+      <Screen
+        backTo="/event"
+        backState={{ glass: true }}
+        cta={
+          <PrimaryButton type="submit" form="checkout-form">
+            Pay ${total}
+          </PrimaryButton>
+        }
+      >
       <h1 className="screen-title checkout-title">{publicEvent.title}</h1>
       <form id="checkout-form" className="stack checkout" onSubmit={pay}>
         <label className="field">
@@ -132,29 +135,27 @@ export function CheckoutScreen() {
           <p className="total">${total}</p>
         </div>
         <p className="note">
-          Note: Use the same Name and Phone Number, and 10-character code to log into comm dashboard
+          Note: Any name and phone number can log into the comm dashboard with the 10-character code.
         </p>
         {error ? <p className="note">{error}</p> : null}
       </form>
-    </Screen>
+      </Screen>
+    </div>
   );
 }
 
 export function CommLoginScreen() {
   const navigate = useNavigate();
   const glass = useGlassEnter();
-  const { guest, setGuest, matchesPurchase, grantCommAccess, hasTicket } = useApp();
+  const { guest, setGuest, grantCommAccess } = useApp();
   const [code, setCode] = useState("");
   const [error, setError] = useState("");
 
   function submit(event) {
     event.preventDefault();
-    if (!matchesPurchase(guest.name, guest.phone, code)) {
-      setError(
-        hasTicket
-          ? "Use the same name, phone number, and code from your ticket."
-          : "Buy a ticket first, then use that same name, phone number, and code.",
-      );
+    const entered = code.replace(/[^a-zA-Z0-9]/g, "").toUpperCase();
+    if (entered !== TICKET_CODE) {
+      setError(`Enter ${TICKET_CODE}.`);
       return;
     }
     grantCommAccess();

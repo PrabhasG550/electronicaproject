@@ -99,67 +99,61 @@ function fillDigits(value, length) {
   return value.replace(/\D/g, "").slice(0, length).padEnd(length, " ");
 }
 
-function fillCode(value, length) {
-  return value
-    .replace(/[^a-zA-Z0-9]/g, "")
-    .toUpperCase()
-    .slice(0, length)
-    .padEnd(length, " ");
-}
-
 export function CodeBoxes({ value, onChange, labelledBy, length = 10 }) {
-  const refs = useRef([]);
-  const digits = fillCode(value, length).split("");
+  const inputRef = useRef(null);
+  const code = value.replace(/[^a-zA-Z0-9]/g, "").toUpperCase().slice(0, length);
+  const [caret, setCaret] = useState(code.length);
+  const slots = Array.from({ length }, (_, index) => code[index] || "");
 
-  function write(index, nextChar) {
-    const next = digits.slice();
-    next[index] = nextChar;
-    onChange(next.join("").replace(/\s/g, ""));
+  function placeCaret(node, index) {
+    const pos = Math.max(0, Math.min(index, code.length, length));
+    node.setSelectionRange(pos, pos);
+    setCaret(pos);
   }
 
-  function onDigitChange(index, raw) {
-    const cleaned = raw.replace(/[^a-zA-Z0-9]/g, "").toUpperCase();
-    if (!cleaned) {
-      write(index, "");
-      return;
-    }
-    const next = digits.slice();
-    cleaned.split("").forEach((char, offset) => {
-      if (index + offset < length) next[index + offset] = char;
+  function onInput(event) {
+    const cleaned = event.target.value.replace(/[^a-zA-Z0-9]/g, "").toUpperCase().slice(0, length);
+    onChange(cleaned);
+    const pos = cleaned.length;
+    requestAnimationFrame(() => {
+      const node = inputRef.current;
+      if (!node) return;
+      node.setSelectionRange(pos, pos);
+      setCaret(pos);
     });
-    onChange(next.join("").replace(/\s/g, ""));
-    const focusIndex = Math.min(index + cleaned.length, length - 1);
-    refs.current[focusIndex]?.focus();
   }
 
-  function onKeyDown(index, event) {
-    if (event.key === "Backspace" && !digits[index].trim() && index > 0) {
-      write(index - 1, "");
-      refs.current[index - 1]?.focus();
-    }
-    if (event.key === "ArrowLeft" && index > 0) refs.current[index - 1]?.focus();
-    if (event.key === "ArrowRight" && index < length - 1) refs.current[index + 1]?.focus();
+  function onCapturePointer(event) {
+    const node = event.currentTarget;
+    const rect = node.getBoundingClientRect();
+    const index = Math.min(length - 1, Math.max(0, Math.floor(((event.clientX - rect.left) / rect.width) * length)));
+    placeCaret(node, index);
   }
 
   return (
-    <div className="code-row" role="group" aria-labelledby={labelledBy}>
-      {digits.map((digit, index) => (
-        <input
-          key={index}
-          ref={(node) => {
-            refs.current[index] = node;
-          }}
-          className="code-box"
-          inputMode="text"
-          autoCapitalize="characters"
-          autoComplete="off"
-          aria-label={`Code character ${index + 1}`}
-          maxLength={length}
-          value={digit.trim()}
-          onChange={(event) => onDigitChange(index, event.target.value)}
-          onKeyDown={(event) => onKeyDown(index, event)}
-        />
+    <div className="code-row code-entry">
+      {slots.map((char, index) => (
+        <span key={index} className={caret === index ? "code-box is-current" : "code-box"} aria-hidden="true">
+          {char}
+        </span>
       ))}
+      <input
+        ref={inputRef}
+        className="code-capture"
+        inputMode="text"
+        autoCapitalize="characters"
+        autoComplete="off"
+        autoCorrect="off"
+        spellCheck="false"
+        aria-label="Code"
+        aria-labelledby={labelledBy}
+        maxLength={length}
+        value={code}
+        onChange={onInput}
+        onPointerUp={onCapturePointer}
+        onKeyUp={(event) => setCaret(event.currentTarget.selectionStart ?? code.length)}
+        onSelect={(event) => setCaret(event.currentTarget.selectionStart ?? code.length)}
+      />
     </div>
   );
 }
