@@ -1,26 +1,17 @@
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { hostEvents } from "../data";
-import { HOST, formatStamp, useApp } from "../state";
+import { formatStamp, useApp } from "../state";
 import { MessageList, PrimaryButton, Screen, useGlassEnter } from "../components/ui";
 
 export function HostLoginScreen() {
   const navigate = useNavigate();
   const glass = useGlassEnter();
-  const { hosts } = useApp();
-  const [email, setEmail] = useState(HOST.email);
-  const [password, setPassword] = useState(HOST.password);
-  const [error, setError] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
   function submit(event) {
     event.preventDefault();
-    const match = hosts.some(
-      (host) => host.email.toLowerCase() === email.trim().toLowerCase() && host.password === password,
-    );
-    if (!match) {
-      setError("Check the email and password.");
-      return;
-    }
     navigate("/host");
   }
 
@@ -39,13 +30,12 @@ export function HostLoginScreen() {
       <form id="host-login" className="stack center-form" onSubmit={submit}>
         <label className="field">
           <span className="field-label">Enter Email</span>
-          <input className="text-input" type="email" value={email} onChange={(event) => setEmail(event.target.value)} />
+          <input className="text-input" type="text" value={email} onChange={(event) => setEmail(event.target.value)} />
         </label>
         <label className="field">
           <span className="field-label">Enter Password</span>
           <input className="text-input" value={password} onChange={(event) => setPassword(event.target.value)} />
         </label>
-        {error ? <p className="note">{error}</p> : null}
         <button className="text-link" type="button" onClick={() => navigate("/host-signup")}>
           New Host
         </button>

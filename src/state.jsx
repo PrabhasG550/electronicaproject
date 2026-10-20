@@ -4,8 +4,8 @@ export const TICKET_CODE = "123123AB12";
 export const CODE_LENGTH = TICKET_CODE.length;
 
 export const COMM_GUEST = {
-  name: "Prabhas Gade",
-  phone: "5555555555",
+  name: "",
+  phone: "",
   country: "+91",
 };
 

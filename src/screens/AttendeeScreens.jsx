@@ -63,15 +63,10 @@ export function CheckoutScreen() {
   const navigate = useNavigate();
   const glass = useGlassEnter();
   const { guest, setGuest, addPurchase } = useApp();
-  const [error, setError] = useState("");
   const total = publicEvent.ticket + publicEvent.fee;
 
   function pay(event) {
     event.preventDefault();
-    if (!guest.name.trim() || guest.phone.replace(/\D/g, "").length < 1) {
-      setError("Enter your name and phone number.");
-      return;
-    }
     addPurchase({ name: guest.name, phone: guest.phone });
     navigate("/comm-login", { state: { glass: true } });
   }
@@ -137,7 +132,6 @@ export function CheckoutScreen() {
         <p className="note">
           Note: Any name and phone number can log into the comm dashboard with the 10-character code.
         </p>
-        {error ? <p className="note">{error}</p> : null}
       </form>
       </Screen>
     </div>
