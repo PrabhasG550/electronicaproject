@@ -2,10 +2,11 @@ import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { hostEvents } from "../data";
 import { HOST, formatStamp, useApp } from "../state";
-import { MessageList, PrimaryButton, Screen } from "../components/ui";
+import { MessageList, PrimaryButton, Screen, useGlassEnter } from "../components/ui";
 
 export function HostLoginScreen() {
   const navigate = useNavigate();
+  const glass = useGlassEnter();
   const { hosts } = useApp();
   const [email, setEmail] = useState(HOST.email);
   const [password, setPassword] = useState(HOST.password);
@@ -24,14 +25,16 @@ export function HostLoginScreen() {
   }
 
   return (
-    <Screen
-      backTo="/"
-      cta={
-        <PrimaryButton type="submit" form="host-login">
-          Login
-        </PrimaryButton>
-      }
-    >
+    <div className={glass ? "glass-in" : "event-screen"}>
+      <Screen
+        backTo="/"
+        backState={{ glass: true }}
+        cta={
+          <PrimaryButton type="submit" form="host-login">
+            Login
+          </PrimaryButton>
+        }
+      >
       <h1 className="screen-title">Host Login</h1>
       <form id="host-login" className="stack center-form" onSubmit={submit}>
         <label className="field">
@@ -47,7 +50,8 @@ export function HostLoginScreen() {
           New Host
         </button>
       </form>
-    </Screen>
+      </Screen>
+    </div>
   );
 }
 

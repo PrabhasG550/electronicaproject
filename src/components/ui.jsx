@@ -1,6 +1,22 @@
-import { useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useRef, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import dashUrl from "../assets/dash.svg";
+
+export function useGlassEnter() {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const [glass] = useState(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return false;
+    return Boolean(location.state?.glass);
+  });
+
+  useEffect(() => {
+    if (!location.state?.glass) return;
+    navigate(location.pathname, { replace: true, state: null });
+  }, [location.pathname, location.state, navigate]);
+
+  return glass;
+}
 
 export function Chevron() {
   return (
@@ -46,10 +62,15 @@ export function Dash() {
   return <img className="dash" src={dashUrl} alt="" width="6.5" height="1" />;
 }
 
-export function BackButton({ to = -1, label }) {
+export function BackButton({ to = -1, label, state }) {
   const navigate = useNavigate();
   return (
-    <button className="back" type="button" aria-label={label || "Back"} onClick={() => navigate(to)}>
+    <button
+      className="back"
+      type="button"
+      aria-label={label || "Back"}
+      onClick={() => navigate(to, state ? { state } : undefined)}
+    >
       <Chevron />
       {label ? <span>{label}</span> : null}
     </button>
@@ -64,10 +85,10 @@ export function PrimaryButton({ children, onClick, type = "button", form }) {
   );
 }
 
-export function Screen({ children, cta, backTo, backLabel }) {
+export function Screen({ children, cta, backTo, backLabel, backState }) {
   return (
     <section className="screen">
-      {backTo !== undefined ? <BackButton to={backTo} label={backLabel} /> : null}
+      {backTo !== undefined ? <BackButton to={backTo} label={backLabel} state={backState} /> : null}
       <div className={cta ? "screen-scroll with-cta" : "screen-scroll"}>{children}</div>
       {cta}
     </section>

@@ -1,104 +1,61 @@
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
 import { publicEvent } from "../data";
 import { CODE_LENGTH, TICKET_CODE, useApp } from "../state";
 import cardUrl from "../assets/card.png";
-import { CodeBoxes, MessageList, PhoneField, PrimaryButton, Screen } from "../components/ui";
-
-function HomeFace({ code, onCode, error }) {
-  const navigate = useNavigate();
-  return (
-    <Screen
-      cta={<PrimaryButton onClick={() => navigate("/comm-login")}>Comm Center</PrimaryButton>}
-    >
-      <button className="host-pill" type="button" onClick={() => navigate("/host-login")}>
-        Host Login
-      </button>
-      <div className="home-code">
-        <p id="enter-code">Enter Code</p>
-        <CodeBoxes value={code} onChange={onCode} labelledBy="enter-code" length={CODE_LENGTH} />
-        {error ? <p className="note">{error}</p> : null}
-      </div>
-    </Screen>
-  );
-}
+import { CodeBoxes, MessageList, PhoneField, PrimaryButton, Screen, useGlassEnter } from "../components/ui";
 
 export function HomeScreen() {
   const navigate = useNavigate();
+  const glass = useGlassEnter();
   const [code, setCode] = useState("");
   const [error, setError] = useState("");
-  const [phase, setPhase] = useState("idle");
-  const splitDone = useRef(false);
 
   function onCode(next) {
     const entered = next.replace(/[^a-zA-Z0-9]/g, "").toUpperCase();
     setCode(entered);
     setError("");
     if (entered.length < CODE_LENGTH) return;
-    if (entered !== TICKET_CODE) {
-      setError(`Enter ${TICKET_CODE}.`);
-      return;
-    }
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      navigate("/event");
-      return;
-    }
-    setPhase("split");
-  }
-
-  function onSplitEnd(event) {
-    if (event.animationName !== "home-split-left" || splitDone.current) return;
-    splitDone.current = true;
-    setPhase("reveal");
-  }
-
-  function onFadeEnd(event) {
-    if (event.animationName !== "ticket-fade-in") return;
-    navigate("/event", { replace: true });
-  }
-
-  if (phase === "idle") {
-    return <HomeFace code={code} onCode={onCode} error={error} />;
+    if (entered === TICKET_CODE) navigate("/event", { state: { glass: true } });
+    else setError(`Enter ${TICKET_CODE}.`);
   }
 
   return (
-    <div className="reveal-stage">
-      <div className="reveal-black" />
-      {phase === "reveal" ? (
-        <div className="reveal-event" onAnimationEnd={onFadeEnd}>
-          <EventScreen />
+    <div className={glass ? "glass-in" : "event-screen"}>
+      <Screen
+        cta={<PrimaryButton onClick={() => navigate("/comm-login", { state: { glass: true } })}>Comm Center</PrimaryButton>}
+      >
+        <button className="host-pill" type="button" onClick={() => navigate("/host-login", { state: { glass: true } })}>
+          Host Login
+        </button>
+        <div className="home-code">
+          <p id="enter-code">Enter Code</p>
+          <CodeBoxes value={code} onChange={onCode} labelledBy="enter-code" length={CODE_LENGTH} />
+          {error ? <p className="note">{error}</p> : null}
         </div>
-      ) : (
-        <div className="split-overlay" aria-hidden="true" inert>
-          <div className="split-half left" onAnimationEnd={onSplitEnd}>
-            <div className="split-pane">
-              <HomeFace code={code} onCode={() => {}} />
-            </div>
-          </div>
-          <div className="split-half right">
-            <div className="split-pane">
-              <HomeFace code={code} onCode={() => {}} />
-            </div>
-          </div>
-        </div>
-      )}
+      </Screen>
     </div>
   );
 }
 
 export function EventScreen() {
   const navigate = useNavigate();
+  const glass = useGlassEnter();
+
   return (
-    <Screen
-      backTo="/"
-      cta={<PrimaryButton onClick={() => navigate("/checkout")}>Buy Tickets</PrimaryButton>}
-    >
-      <div className="poster" role="img" aria-label="Event image" />
-      <div className="event-copy">
-        <h1>{publicEvent.title}</h1>
-        <p>{publicEvent.description}</p>
-      </div>
-    </Screen>
+    <div className={glass ? "glass-in" : "event-screen"}>
+      <Screen
+        backTo="/"
+        backState={{ glass: true }}
+        cta={<PrimaryButton onClick={() => navigate("/checkout")}>Buy Tickets</PrimaryButton>}
+      >
+        <div className="poster" role="img" aria-label="Event image" />
+        <div className="event-copy">
+          <h1>{publicEvent.title}</h1>
+          <p>{publicEvent.description}</p>
+        </div>
+      </Screen>
+    </div>
   );
 }
 
@@ -185,6 +142,7 @@ export function CheckoutScreen() {
 
 export function CommLoginScreen() {
   const navigate = useNavigate();
+  const glass = useGlassEnter();
   const { guest, setGuest, matchesPurchase, grantCommAccess, hasTicket } = useApp();
   const [code, setCode] = useState("");
   const [error, setError] = useState("");
@@ -204,14 +162,16 @@ export function CommLoginScreen() {
   }
 
   return (
-    <Screen
-      backTo="/"
-      cta={
-        <PrimaryButton type="submit" form="comm-login">
-          Enter
-        </PrimaryButton>
-      }
-    >
+    <div className={glass ? "glass-in" : "event-screen"}>
+      <Screen
+        backTo="/"
+        backState={{ glass: true }}
+        cta={
+          <PrimaryButton type="submit" form="comm-login">
+            Enter
+          </PrimaryButton>
+        }
+      >
       <h1 className="screen-title">Comm Center Login</h1>
       <form id="comm-login" className="stack login" onSubmit={submit}>
         <label className="field">
@@ -239,7 +199,8 @@ export function CommLoginScreen() {
         </div>
         {error ? <p className="note">{error}</p> : null}
       </form>
-    </Screen>
+      </Screen>
+    </div>
   );
 }
 
@@ -247,7 +208,7 @@ export function CommCenterScreen() {
   const { messages, toggleRead, commAccess } = useApp();
   if (!commAccess) return <Navigate to="/comm-login" replace />;
   return (
-    <Screen backTo="/" backLabel="enter new event">
+    <Screen backTo="/" backLabel="enter new event" backState={{ glass: true }}>
       <h1 className="screen-title">Comm Center</h1>
       <MessageList messages={messages} showFrom onToggle={toggleRead} />
     </Screen>

@@ -76,6 +76,62 @@ button {
   background: #fff;
 }
 
+.event-screen,
+.glass-in {
+  height: 100%;
+}
+
+.glass-in {
+  position: relative;
+}
+
+.glass-in .screen {
+  animation: tempered-glass 1.15s cubic-bezier(0.22, 0.61, 0.36, 1) both;
+}
+
+.glass-in::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+  background:
+    linear-gradient(118deg, rgba(255, 255, 255, 0.72) 0%, rgba(255, 255, 255, 0.16) 38%, rgba(255, 255, 255, 0.5) 72%, rgba(255, 255, 255, 0.12) 100%);
+  backdrop-filter: blur(14px);
+  animation: glass-clear 1.15s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+}
+
+@keyframes tempered-glass {
+  0% {
+    opacity: 0;
+    filter: blur(8px) brightness(1.2);
+  }
+  45% {
+    opacity: 1;
+    filter: blur(3px) brightness(1.06);
+  }
+  100% {
+    opacity: 1;
+    filter: none;
+  }
+}
+
+@keyframes glass-clear {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .glass-in,
+  .glass-in::after {
+    animation: none;
+  }
+}
+
 .screen-scroll {
   height: 100%;
   overflow: auto;
@@ -148,96 +204,6 @@ button {
   background: #d9d9d9;
   font-size: 24px;
   font-weight: 500;
-}
-
-.reveal-stage {
-  position: absolute;
-  inset: 0;
-  overflow: hidden;
-  background: #000;
-}
-
-.reveal-black {
-  position: absolute;
-  inset: 0;
-  background: #000;
-}
-
-.split-overlay {
-  position: absolute;
-  inset: 0;
-  z-index: 2;
-  display: flex;
-  pointer-events: none;
-}
-
-.split-half {
-  width: 50%;
-  height: 100%;
-  overflow: hidden;
-  background: #fff;
-  animation-duration: 0.8s;
-  animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
-  animation-fill-mode: forwards;
-}
-
-.split-half.left {
-  animation-name: home-split-left;
-}
-
-.split-half.right {
-  animation-name: home-split-right;
-}
-
-.split-pane {
-  width: 200%;
-  height: 100%;
-}
-
-.split-half.right .split-pane {
-  transform: translateX(-50%);
-}
-
-.reveal-event {
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-  background: #fff;
-  animation: ticket-fade-in 0.7s ease forwards;
-}
-
-@keyframes home-split-left {
-  from {
-    transform: translateX(0);
-  }
-  to {
-    transform: translateX(-100%);
-  }
-}
-
-@keyframes home-split-right {
-  from {
-    transform: translateX(0);
-  }
-  to {
-    transform: translateX(100%);
-  }
-}
-
-@keyframes ticket-fade-in {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .split-half,
-  .reveal-event {
-    animation: none;
-  }
 }
 
 .home-code {
@@ -363,8 +329,9 @@ button {
 }
 
 .phone-row {
-  width: 100%;
-  gap: 4px;
+  width: max-content;
+  max-width: 100%;
+  gap: 6px;
 }
 
 .country {
@@ -390,10 +357,8 @@ button {
 }
 
 .digit {
-  flex: 1 1 0;
-  width: auto;
-  min-width: 0;
-  max-width: 36px;
+  flex: 0 0 19px;
+  width: 19px;
   height: 29px;
   padding: 0;
   border: 0;
@@ -406,14 +371,16 @@ button {
 
 .phone-row .group {
   display: flex;
-  flex: 1;
-  min-width: 0;
-  gap: 4px;
+  flex: none;
+  gap: 6px;
 }
 
 .dash {
-  flex: none;
-  margin: 0 2px;
+  flex: 0 0 8px;
+  width: 8px;
+  height: 1px;
+  margin: 0;
+  object-fit: none;
 }
 
 .poster {
