@@ -20,7 +20,7 @@ const INITIAL_MESSAGES = [
     eventId: "debut",
     date: "10/19/2026 - 10:23 AM",
     subject: "Location",
-    body: "Latitude: 36.3585 Longitude: -94.2098\n\nCome up the first flight of stairs next to the yellow street light. Have your ticket ready.",
+    body: "Latitude: 36.3585\nLongitude: -94.2098\n\nCome up the first flight of stairs next to the yellow street light. Have your ticket ready.",
     unread: true,
   },
   {

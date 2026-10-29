@@ -296,6 +296,55 @@ button {
   margin-top: 186px;
 }
 
+.stack.new-comm {
+  margin-top: 28px;
+}
+
+.schedule-check {
+  margin-top: 0;
+  margin-bottom: 4px;
+}
+
+.schedule-when {
+  margin-top: 16px;
+  margin-bottom: 8px;
+  position: relative;
+  z-index: 6;
+}
+
+.schedule-when-control {
+  position: relative;
+}
+
+.schedule-when .text-input {
+  min-height: 40px;
+  padding-right: 44px;
+}
+
+.schedule-when .text-input::-webkit-calendar-picker-indicator {
+  display: none;
+}
+
+.schedule-calendar-btn {
+  position: absolute;
+  top: 50%;
+  right: 6px;
+  width: 34px;
+  height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  transform: translateY(-50%);
+}
+
+.schedule-calendar-btn:hover {
+  background: rgba(0, 0, 0, 0.06);
+}
+
 .stack.center-form {
   position: absolute;
   top: 50%;
@@ -313,6 +362,8 @@ button {
 .field + .field,
 .note + .field,
 .field + .note,
+.check + .field,
+.field + .check,
 .breakdown + .note {
   margin-top: 20px;
 }
@@ -431,8 +482,7 @@ button {
   white-space: pre-wrap;
 }
 
-.event-copy p,
-.msg-body {
+.event-copy p {
   margin: 22px 0 0;
   font-size: 16px;
   font-weight: 300;
@@ -646,33 +696,43 @@ button {
 }
 
 .msg {
-  padding: 6px 13px 12px;
+  padding: 18px 20px 22px;
 }
 
 .from-row {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  font-size: 15px;
+  margin-bottom: 10px;
+  font-size: 14px;
   font-weight: 500;
+  color: #555;
 }
 
 .when {
-  margin-top: 6px;
-  font-size: 11px;
-  font-weight: 500;
+  margin: 0;
+  font-size: 12px;
+  font-weight: 300;
+  color: #666;
+  letter-spacing: 0.02em;
 }
 
 .subject {
-  margin: 6px 0 0;
-  font-size: 24px;
+  margin: 12px 0 0;
+  font-size: 22px;
   font-weight: 500;
+  line-height: 1.25;
 }
 
 .msg-body {
-  margin-top: 6px;
+  margin: 28px 0 0;
   width: min(640px, 100%);
   max-width: 100%;
+  font-size: 15px;
+  font-weight: 300;
+  line-height: 1.65;
+  color: #333;
+  white-space: pre-wrap;
 }
 
 .swipe {

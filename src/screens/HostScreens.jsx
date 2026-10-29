@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { hostEvents } from "../data";
 import { formatStamp, useApp } from "../state";
@@ -246,10 +246,12 @@ export function NewCommScreen() {
   const { eventId } = useParams();
   const navigate = useNavigate();
   const { addMessage } = useApp();
+  const whenRef = useRef(null);
   const [subject, setSubject] = useState("");
   const [body, setBody] = useState("");
   const [schedule, setSchedule] = useState(false);
   const [when, setWhen] = useState("");
+  const [pickerOpen, setPickerOpen] = useState(false);
   const [error, setError] = useState("");
 
   function submit(event) {
@@ -269,6 +271,28 @@ export function NewCommScreen() {
     navigate(`/comms/${eventId}`);
   }
 
+  function toggleCalendar(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    const input = whenRef.current;
+    if (!input) return;
+
+    if (pickerOpen) {
+      input.blur();
+      setPickerOpen(false);
+      return;
+    }
+
+    input.focus({ preventScroll: true });
+    input.scrollIntoView({ block: "start", behavior: "smooth" });
+    try {
+      if (typeof input.showPicker === "function") input.showPicker();
+    } catch {
+      // Some browsers only allow showPicker from a direct user gesture.
+    }
+    setPickerOpen(true);
+  }
+
   return (
     <Screen
       backTo={`/comms/${eventId}`}
@@ -279,7 +303,46 @@ export function NewCommScreen() {
       }
     >
       <h1 className="screen-title">New Comm</h1>
-      <form id="new-comm" className="stack login" onSubmit={submit}>
+      <form id="new-comm" className="stack new-comm" onSubmit={submit}>
+        <label className="check schedule-check">
+          <input type="checkbox" checked={schedule} onChange={(event) => setSchedule(event.target.checked)} />
+          Schedule message
+        </label>
+        {schedule ? (
+          <div className="field schedule-when">
+            <span className="field-label" id="send-at-label">
+              Send at
+            </span>
+            <div className="schedule-when-control">
+              <input
+                ref={whenRef}
+                className="text-input"
+                type="datetime-local"
+                value={when}
+                aria-labelledby="send-at-label"
+                onChange={(event) => {
+                  setWhen(event.target.value);
+                  setPickerOpen(false);
+                }}
+                onBlur={() => setPickerOpen(false)}
+                onCancel={() => setPickerOpen(false)}
+              />
+              <button
+                className="schedule-calendar-btn"
+                type="button"
+                aria-label={pickerOpen ? "Close calendar" : "Open calendar"}
+                aria-expanded={pickerOpen}
+                onMouseDown={(event) => event.preventDefault()}
+                onClick={toggleCalendar}
+              >
+                <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+                  <rect x="2.5" y="3.5" width="13" height="12" rx="1.5" stroke="#000" strokeWidth="1.2" />
+                  <path d="M2.5 7h13M6 2v3M12 2v3" stroke="#000" strokeWidth="1.2" strokeLinecap="round" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        ) : null}
         <label className="field">
           <span className="field-label">Subject</span>
           <input className="text-input" value={subject} onChange={(event) => setSubject(event.target.value)} />
@@ -288,16 +351,6 @@ export function NewCommScreen() {
           <span className="field-label">Message</span>
           <textarea className="area-input" value={body} onChange={(event) => setBody(event.target.value)} />
         </label>
-        <label className="check">
-          <input type="checkbox" checked={schedule} onChange={(event) => setSchedule(event.target.checked)} />
-          Schedule message
-        </label>
-        {schedule ? (
-          <label className="field">
-            <span className="field-label">Send at</span>
-            <input className="text-input" type="datetime-local" value={when} onChange={(event) => setWhen(event.target.value)} />
-          </label>
-        ) : null}
         {error ? <p className="note">{error}</p> : null}
       </form>
     </Screen>

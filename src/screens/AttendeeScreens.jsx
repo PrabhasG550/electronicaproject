@@ -62,13 +62,14 @@ export function EventScreen() {
 export function CheckoutScreen() {
   const navigate = useNavigate();
   const glass = useGlassEnter();
-  const { guest, setGuest, addPurchase } = useApp();
+  const { guest, setGuest, addPurchase, grantCommAccess } = useApp();
   const total = publicEvent.ticket + publicEvent.fee;
 
   function pay(event) {
     event.preventDefault();
     addPurchase({ name: guest.name, phone: guest.phone });
-    navigate("/comm-login", { state: { glass: true } });
+    grantCommAccess();
+    navigate("/comm", { state: { glass: true } });
   }
 
   return (
@@ -130,7 +131,7 @@ export function CheckoutScreen() {
           <p className="total">${total}</p>
         </div>
         <p className="note">
-          Note: Any name and phone number can log into the comm dashboard with the 10-character code.
+          Note: After payment you will enter the Comm Center. You can also open it later with the 10-character code.
         </p>
       </form>
       </Screen>
@@ -153,7 +154,7 @@ export function CommLoginScreen() {
       return;
     }
     grantCommAccess();
-    navigate("/comm");
+    navigate("/comm", { state: { glass: true } });
   }
 
   return (
@@ -200,12 +201,15 @@ export function CommLoginScreen() {
 }
 
 export function CommCenterScreen() {
+  const glass = useGlassEnter();
   const { messages, toggleRead, commAccess } = useApp();
   if (!commAccess) return <Navigate to="/comm-login" replace />;
   return (
-    <Screen backTo="/" backLabel="enter new event" backState={{ glass: true }}>
-      <h1 className="screen-title">Comm Center</h1>
-      <MessageList messages={messages} showFrom onToggle={toggleRead} />
-    </Screen>
+    <div className={glass ? "glass-in" : "event-screen"}>
+      <Screen backTo="/" backLabel="enter new event" backState={{ glass: true }}>
+        <h1 className="screen-title">Comm Center</h1>
+        <MessageList messages={messages} showFrom onToggle={toggleRead} />
+      </Screen>
+    </div>
   );
 }
