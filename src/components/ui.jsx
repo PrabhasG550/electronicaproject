@@ -257,7 +257,10 @@ export function MessageList({ messages, showFrom = false, onToggle }) {
                 {message.unread ? <UnreadDot /> : <span />}
               </div>
             ) : null}
-            <div className="when">{message.date}</div>
+            <div className="when-row">
+              <div className="when">{message.date}</div>
+              {!showFrom && message.unread ? <UnreadDot /> : null}
+            </div>
             <h2 className="subject">{message.subject}</h2>
             <p className="msg-body">{message.body}</p>
           </article>

@@ -31,3 +31,5 @@ export const hostEvents = {
     },
   ],
 };
+
+export const allEvents = [...hostEvents.upcoming, ...hostEvents.past];

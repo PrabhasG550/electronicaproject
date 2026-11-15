@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
-import { publicEvent } from "../data";
+import { allEvents, publicEvent } from "../data";
 import { CODE_LENGTH, TICKET_CODE, useApp } from "../state";
 import cardUrl from "../assets/card.png";
+import posterUrl from "../assets/afterparty-poster.jpg";
 import { CodeBoxes, MessageList, PhoneField, PrimaryButton, Screen, useGlassEnter } from "../components/ui";
 
 export function HomeScreen() {
@@ -52,17 +53,22 @@ export function EventScreen() {
   const glass = useGlassEnter();
 
   return (
-    <div className={glass ? "glass-in" : "event-screen"}>
-      <Screen
-        backTo="/"
-        backState={{ glass: true }}
-        cta={<PrimaryButton onClick={() => navigate("/checkout", { state: { glass: true } })}>Buy tickets</PrimaryButton>}
-      >
+    <div className={glass ? "glass-in event-layout" : "event-screen event-layout"}>
+      <Screen backTo="/" backState={{ glass: true }}>
         <div className="event-channel">
-          <div className="poster" role="img" aria-label="Event image" />
-          <h1 className="event-title">{publicEvent.title}</h1>
-          <div className="event-copy">
-            <p>{publicEvent.description}</p>
+          <aside className="event-poster-panel">
+            <img className="poster" src={posterUrl} alt="MumbaiAndarground Afterparty" />
+          </aside>
+          <div className="event-detail">
+            <h1 className="event-title">{publicEvent.title}</h1>
+            <div className="event-copy">
+              <p>{publicEvent.description}</p>
+            </div>
+            <div className="cta-slot">
+              <PrimaryButton onClick={() => navigate("/checkout", { state: { glass: true } })}>
+                Buy tickets
+              </PrimaryButton>
+            </div>
           </div>
         </div>
       </Screen>
@@ -210,13 +216,57 @@ export function CommLoginScreen() {
 export function CommCenterScreen() {
   const glass = useGlassEnter();
   const { messages, toggleRead, commAccess } = useApp();
+  const grouped = allEvents
+    .map((event) => ({
+      event,
+      thread: messages.filter((message) => message.eventId === event.id),
+    }))
+    .filter((group) => group.thread.length > 0);
+  const [openId, setOpenId] = useState(() => {
+    const withUnread = grouped.find((group) => group.thread.some((message) => message.unread));
+    return withUnread?.event.id ?? grouped[0]?.event.id ?? null;
+  });
+
   if (!commAccess) return <Navigate to="/comm-login" replace />;
-  const thread = messages.filter((message) => message.eventId === publicEvent.id);
+
   return (
     <div className={glass ? "glass-in" : "event-screen"}>
       <Screen backTo="/" backLabel="enter new event" backState={{ glass: true }}>
         <h1 className="screen-title">Comm Center</h1>
-        <MessageList messages={thread} showFrom onToggle={toggleRead} />
+        {grouped.length === 0 ? (
+          <div className="thread-empty">
+            <p className="empty-copy">No comms yet.</p>
+          </div>
+        ) : (
+          <div className="comm-events">
+            {grouped.map(({ event, thread }) => {
+              const open = openId === event.id;
+              const unread = thread.filter((message) => message.unread).length;
+              const meta =
+                unread > 0
+                  ? `${thread.length} · ${unread} new`
+                  : `${thread.length} ${thread.length === 1 ? "comm" : "comms"}`;
+
+              return (
+                <section className={open ? "comm-event is-open" : "comm-event"} key={event.id}>
+                  <button
+                    className="comm-event-toggle"
+                    type="button"
+                    aria-expanded={open}
+                    onClick={() => setOpenId(open ? null : event.id)}
+                  >
+                    <span className="comm-event-title">{event.name}</span>
+                    <span className="comm-event-meta">{meta}</span>
+                    <span className="comm-event-caret" aria-hidden="true">
+                      {open ? "–" : "+"}
+                    </span>
+                  </button>
+                  {open ? <MessageList messages={thread} onToggle={toggleRead} /> : null}
+                </section>
+              );
+            })}
+          </div>
+        )}
       </Screen>
     </div>
   );

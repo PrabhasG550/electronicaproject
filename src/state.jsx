@@ -45,6 +45,22 @@ const INITIAL_MESSAGES = [
     body: "The theme is all black. come prepared for darkness.",
     unread: false,
   },
+  {
+    id: "debut-thanks",
+    eventId: "debut",
+    date: "08/22/2025 - 11:04 PM",
+    subject: "Thank you",
+    body: "Thank you for coming to MAG Debut. Safe travels home.",
+    unread: false,
+  },
+  {
+    id: "debut-doors",
+    eventId: "debut",
+    date: "08/22/2025 - 6:10 PM",
+    subject: "Doors",
+    body: "Doors at 9. Wristbands at the side entrance on 2nd Ave.",
+    unread: false,
+  },
 ];
 
 const AppContext = createContext(null);
