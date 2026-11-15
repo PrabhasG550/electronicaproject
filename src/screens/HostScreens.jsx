@@ -7,8 +7,7 @@ import { MessageList, PrimaryButton, Screen, useGlassEnter } from "../components
 export function HostLoginScreen() {
   const navigate = useNavigate();
   const glass = useGlassEnter();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const { hostDraft, setHostDraft } = useApp();
 
   function submit(event) {
     event.preventDefault();
@@ -21,24 +20,35 @@ export function HostLoginScreen() {
         backTo="/"
         backState={{ glass: true }}
         cta={
-          <PrimaryButton type="submit" form="host-login">
-            Login
-          </PrimaryButton>
+          <div className="auth-actions">
+            <button className="text-link auth-signup" type="button" onClick={() => navigate("/host-signup")}>
+              Sign Up
+            </button>
+            <PrimaryButton type="submit" form="host-login">
+              Login
+            </PrimaryButton>
+          </div>
         }
       >
-      <h1 className="screen-title">Host Login</h1>
+      <h1 className="screen-title">Host</h1>
       <form id="host-login" className="stack center-form" onSubmit={submit}>
         <label className="field">
-          <span className="field-label">Enter Email</span>
-          <input className="text-input" type="text" value={email} onChange={(event) => setEmail(event.target.value)} />
+          <span className="field-label">Email</span>
+          <input
+            className="text-input"
+            type="text"
+            value={hostDraft.email}
+            onChange={(event) => setHostDraft({ ...hostDraft, email: event.target.value })}
+          />
         </label>
         <label className="field">
-          <span className="field-label">Enter Password</span>
-          <input className="text-input" value={password} onChange={(event) => setPassword(event.target.value)} />
+          <span className="field-label">Password</span>
+          <input
+            className="text-input"
+            value={hostDraft.password}
+            onChange={(event) => setHostDraft({ ...hostDraft, password: event.target.value })}
+          />
         </label>
-        <button className="text-link" type="button" onClick={() => navigate("/host-signup")}>
-          New Host
-        </button>
       </form>
       </Screen>
     </div>
@@ -47,19 +57,16 @@ export function HostLoginScreen() {
 
 export function HostSignupScreen() {
   const navigate = useNavigate();
-  const { registerHost } = useApp();
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const { registerHost, hostDraft, setHostDraft } = useApp();
   const [error, setError] = useState("");
 
   function submit(event) {
     event.preventDefault();
-    if (!name.trim() || !email.includes("@") || password.length < 4) {
+    if (!hostDraft.name.trim() || !hostDraft.email.includes("@") || hostDraft.password.length < 4) {
       setError("Enter a name, email, and a password of at least 4 characters.");
       return;
     }
-    registerHost({ email: email.trim(), password });
+    registerHost({ email: hostDraft.email.trim(), password: hostDraft.password });
     navigate("/host");
   }
 
@@ -68,27 +75,36 @@ export function HostSignupScreen() {
       backTo="/host-login"
       cta={
         <PrimaryButton type="submit" form="host-signup">
-          Create Account
+          Create account
         </PrimaryButton>
       }
     >
-      <h1 className="screen-title">New Host</h1>
+      <h1 className="screen-title">New host</h1>
       <form id="host-signup" className="stack login" onSubmit={submit}>
         <label className="field">
-          <span className="field-label">Enter Name</span>
-          <input className="text-input" value={name} onChange={(event) => setName(event.target.value)} />
+          <span className="field-label">Name</span>
+          <input
+            className="text-input"
+            value={hostDraft.name}
+            onChange={(event) => setHostDraft({ ...hostDraft, name: event.target.value })}
+          />
         </label>
         <label className="field">
-          <span className="field-label">Enter Email</span>
-          <input className="text-input" type="email" value={email} onChange={(event) => setEmail(event.target.value)} />
+          <span className="field-label">Email</span>
+          <input
+            className="text-input"
+            type="email"
+            value={hostDraft.email}
+            onChange={(event) => setHostDraft({ ...hostDraft, email: event.target.value })}
+          />
         </label>
         <label className="field">
-          <span className="field-label">Enter Password</span>
+          <span className="field-label">Password</span>
           <input
             className="text-input"
             type="password"
-            value={password}
-            onChange={(event) => setPassword(event.target.value)}
+            value={hostDraft.password}
+            onChange={(event) => setHostDraft({ ...hostDraft, password: event.target.value })}
           />
         </label>
         {error ? <p className="note">{error}</p> : null}
@@ -105,7 +121,7 @@ export function DashboardScreen() {
       <div className="stats">
         <div className="stat">
           <span>Revenue</span>
-          <strong>$6,300</strong>
+          <strong>$2,000,000</strong>
         </div>
         <div className="stat">
           <span>Events</span>
@@ -113,18 +129,18 @@ export function DashboardScreen() {
         </div>
         <div className="stat">
           <span>Attendees</span>
-          <strong>350</strong>
+          <strong>20,000</strong>
         </div>
       </div>
       <div className="menu">
         <button className="row" type="button" onClick={() => navigate("/events")}>
-          View Events
+          Events
         </button>
         <button className="row" type="button" onClick={() => navigate("/finance")}>
-          Manage Finances
+          Finance
         </button>
         <button className="row" type="button" onClick={() => navigate("/comms")}>
-          Send Comms
+          Comms
         </button>
       </div>
     </Screen>
@@ -151,7 +167,7 @@ function EventTabs({ tab, setTab }) {
 }
 
 export function EventsScreen() {
-  const [tab, setTab] = useState("past");
+  const [tab, setTab] = useState("upcoming");
   const events = hostEvents[tab];
   return (
     <Screen backTo="/host">
@@ -162,8 +178,8 @@ export function EventsScreen() {
           <div className="thumb" role="img" aria-label="" />
           <h2 className="event-name">{event.name}</h2>
           <div className="meta">
-            <span>{event.attendees} Attendees</span>
-            <span>{event.revenue} Revenue</span>
+            <span>{event.attendees.toLocaleString("en-US")} attendees</span>
+            <span>{event.revenue} revenue</span>
           </div>
         </article>
       ))}
@@ -174,11 +190,11 @@ export function EventsScreen() {
 export function FinanceScreen() {
   return (
     <Screen backTo="/host">
-      <h1 className="screen-title">Finance Management</h1>
+      <h1 className="screen-title">Finance</h1>
       <div className="finance-list">
-        <div className="finance-row">Available Balance: $3,400</div>
-        <div className="finance-row">Pending Balance: $2,900</div>
-        <div className="finance-row">Country (Currency): US (USD)</div>
+        <div className="finance-row">Available: $3,400</div>
+        <div className="finance-row">Pending: $2,900</div>
+        <div className="finance-row">Currency: US (USD)</div>
       </div>
       <div className="finance-gap" />
       <div className="finance-list">
@@ -191,20 +207,25 @@ export function FinanceScreen() {
 
 export function SendCommsScreen() {
   const navigate = useNavigate();
-  const [tab, setTab] = useState("past");
+  const { messages } = useApp();
+  const [tab, setTab] = useState("upcoming");
   const events = hostEvents[tab];
   return (
     <Screen backTo="/host">
-      <h1 className="screen-title">Send Comms</h1>
+      <h1 className="screen-title">Comms</h1>
+      <p className="screen-hint">Choose an event to message</p>
       <EventTabs tab={tab} setTab={setTab} />
-      {events.map((event) => (
-        <button className="event-card" type="button" key={event.id} onClick={() => navigate(`/comms/${event.id}`)}>
-          <h2 className="event-name">{event.name}</h2>
-          <div className="meta">
-            <span>{event.attendees} Attendees</span>
-          </div>
-        </button>
-      ))}
+      {events.map((event) => {
+        const sent = messages.filter((message) => message.eventId === event.id).length;
+        return (
+          <button className="event-card comms-pick" type="button" key={event.id} onClick={() => navigate(`/comms/${event.id}`)}>
+            <h2 className="event-name">{event.name}</h2>
+            <div className="meta">
+              <span>{sent === 0 ? "No messages yet" : `${sent} sent`}</span>
+            </div>
+          </button>
+        );
+      })}
     </Screen>
   );
 }
@@ -225,18 +246,9 @@ export function CommThreadScreen() {
   return (
     <Screen
       backTo="/comms"
-      cta={<PrimaryButton onClick={() => navigate(`/comms/${eventId}/new`)}>New Comm</PrimaryButton>}
+      cta={<PrimaryButton onClick={() => navigate(`/comms/${eventId}/new`)}>New comm</PrimaryButton>}
     >
-      <h1 className="screen-title">Send Comms</h1>
-      <div className="list">
-        <div className="event-summary">
-          <h2 className="event-name">{event.name}</h2>
-          <div className="meta">
-            <span>{event.attendees} Attendees</span>
-          </div>
-        </div>
-      </div>
-      <p className="section-label">Your Comms</p>
+      <h1 className="screen-title thread-title">{event.name}</h1>
       <MessageList messages={thread} />
     </Screen>
   );
@@ -302,7 +314,7 @@ export function NewCommScreen() {
         </PrimaryButton>
       }
     >
-      <h1 className="screen-title">New Comm</h1>
+      <h1 className="screen-title">New comm</h1>
       <form id="new-comm" className="stack new-comm" onSubmit={submit}>
         <label className="check schedule-check">
           <input type="checkbox" checked={schedule} onChange={(event) => setSchedule(event.target.checked)} />

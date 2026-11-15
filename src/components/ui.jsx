@@ -89,8 +89,10 @@ export function Screen({ children, cta, backTo, backLabel, backState }) {
   return (
     <section className="screen">
       {backTo !== undefined ? <BackButton to={backTo} label={backLabel} state={backState} /> : null}
-      <div className={cta ? "screen-scroll with-cta" : "screen-scroll"}>{children}</div>
-      {cta}
+      <div className="screen-scroll">
+        {children}
+        {cta ? <div className="cta-slot">{cta}</div> : null}
+      </div>
     </section>
   );
 }
@@ -99,7 +101,7 @@ function fillDigits(value, length) {
   return value.replace(/\D/g, "").slice(0, length).padEnd(length, " ");
 }
 
-export function CodeBoxes({ value, onChange, labelledBy, length = 10 }) {
+export function CodeBoxes({ value, onChange, labelledBy, length = 6 }) {
   const inputRef = useRef(null);
   const code = value.replace(/[^a-zA-Z0-9]/g, "").toUpperCase().slice(0, length);
   const [caret, setCaret] = useState(code.length);
@@ -237,7 +239,11 @@ export function PhoneField({ country, phone, onCountry, onPhone }) {
 
 export function MessageList({ messages, showFrom = false, onToggle }) {
   if (messages.length === 0) {
-    return <p className="empty-copy">No comms yet.</p>;
+    return (
+      <div className="thread-empty">
+        <p className="empty-copy">No comms yet.</p>
+      </div>
+    );
   }
 
   return (

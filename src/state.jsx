@@ -1,6 +1,6 @@
 import { createContext, useContext, useMemo, useState } from "react";
 
-export const TICKET_CODE = "123123AB12";
+export const TICKET_CODE = "123123";
 export const CODE_LENGTH = TICKET_CODE.length;
 
 export const COMM_GUEST = {
@@ -14,10 +14,16 @@ export const HOST = {
   password: "********************************",
 };
 
+export const HOST_DRAFT = {
+  name: "",
+  email: "",
+  password: "",
+};
+
 const INITIAL_MESSAGES = [
   {
     id: "location",
-    eventId: "debut",
+    eventId: "afterparty",
     date: "10/19/2026 - 10:23 AM",
     subject: "Location",
     body: "Latitude: 36.3585\nLongitude: -94.2098\n\nCome up the first flight of stairs next to the yellow street light. Have your ticket ready.",
@@ -25,7 +31,7 @@ const INITIAL_MESSAGES = [
   },
   {
     id: "ticket",
-    eventId: "debut",
+    eventId: "afterparty",
     date: "10/17/2026 - 10:23 AM",
     subject: "Ticket Code",
     body: `Thank you for the ticket purchase. Here is the code to present at the venue:\n\n${TICKET_CODE}`,
@@ -33,7 +39,7 @@ const INITIAL_MESSAGES = [
   },
   {
     id: "theme",
-    eventId: "debut",
+    eventId: "afterparty",
     date: "10/14/2026 - 10:23 AM",
     subject: "Come Prepared.",
     body: "The theme is all black. come prepared for darkness.",
@@ -46,6 +52,7 @@ const AppContext = createContext(null);
 export function AppState({ children }) {
   const [messages, setMessages] = useState(INITIAL_MESSAGES);
   const [guest, setGuest] = useState(COMM_GUEST);
+  const [hostDraft, setHostDraft] = useState(HOST_DRAFT);
   const [hosts, setHosts] = useState([HOST]);
   const [, setPurchases] = useState([]);
   const [commAccess, setCommAccess] = useState(false);
@@ -55,6 +62,8 @@ export function AppState({ children }) {
       messages,
       guest,
       setGuest,
+      hostDraft,
+      setHostDraft,
       hosts,
       commAccess,
       toggleRead(id) {
@@ -82,7 +91,7 @@ export function AppState({ children }) {
         setCommAccess(true);
       },
     }),
-    [messages, guest, hosts, commAccess],
+    [messages, guest, hostDraft, hosts, commAccess],
   );
 
   return <AppContext.Provider value={api}>{children}</AppContext.Provider>;

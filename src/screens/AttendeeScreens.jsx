@@ -22,17 +22,26 @@ export function HomeScreen() {
 
   return (
     <div className={glass ? "glass-in" : "event-screen"}>
-      <Screen
-        cta={<PrimaryButton onClick={() => navigate("/comm-login", { state: { glass: true } })}>Comm Center</PrimaryButton>}
-      >
-        <button className="host-pill" type="button" onClick={() => navigate("/host-login", { state: { glass: true } })}>
-          Host Login
+      <Screen>
+        <button
+          className="home-link home-link-host"
+          type="button"
+          onClick={() => navigate("/host-login", { state: { glass: true } })}
+        >
+          Host login
         </button>
         <div className="home-code">
           <p id="enter-code">Enter Code</p>
           <CodeBoxes value={code} onChange={onCode} labelledBy="enter-code" length={CODE_LENGTH} />
           {error ? <p className="note">{error}</p> : null}
         </div>
+        <button
+          className="home-link home-link-comm"
+          type="button"
+          onClick={() => navigate("/comm-login", { state: { glass: true } })}
+        >
+          Comm Center
+        </button>
       </Screen>
     </div>
   );
@@ -47,12 +56,14 @@ export function EventScreen() {
       <Screen
         backTo="/"
         backState={{ glass: true }}
-        cta={<PrimaryButton onClick={() => navigate("/checkout", { state: { glass: true } })}>Buy Tickets</PrimaryButton>}
+        cta={<PrimaryButton onClick={() => navigate("/checkout", { state: { glass: true } })}>Buy tickets</PrimaryButton>}
       >
-        <div className="poster" role="img" aria-label="Event image" />
-        <div className="event-copy">
-          <h1>{publicEvent.title}</h1>
-          <p>{publicEvent.description}</p>
+        <div className="event-channel">
+          <div className="poster" role="img" aria-label="Event image" />
+          <h1 className="event-title">{publicEvent.title}</h1>
+          <div className="event-copy">
+            <p>{publicEvent.description}</p>
+          </div>
         </div>
       </Screen>
     </div>
@@ -87,8 +98,7 @@ export function CheckoutScreen() {
       <form id="checkout-form" className="stack checkout" onSubmit={pay}>
         <label className="field">
           <span className="field-label">
-            Enter Name <span className="required mark">*</span>
-            <span className="required">Required for Location Sharing</span>
+            Name <span className="required mark">*</span>
           </span>
           <input
             className="text-input"
@@ -98,8 +108,7 @@ export function CheckoutScreen() {
         </label>
         <div className="field">
           <span className="field-label">
-            Enter Phone Number <span className="required mark">*</span>
-            <span className="required">Required for Location Sharing</span>
+            Phone <span className="required mark">*</span>
           </span>
           <PhoneField
             country={guest.country}
@@ -107,7 +116,7 @@ export function CheckoutScreen() {
             onCountry={(country) => setGuest({ ...guest, country })}
             onPhone={(phone) => setGuest({ ...guest, phone })}
           />
-          <p className="note">This information will stay private. SMS rates may apply</p>
+          <p className="hint">Required for location sharing. Stays private. SMS rates may apply.</p>
         </div>
         <div className="breakdown">
           <div className="split">
@@ -119,20 +128,18 @@ export function CheckoutScreen() {
             <span>${publicEvent.fee}</span>
           </div>
           <div className="split">
-            <span>Payment Method</span>
+            <span>Payment</span>
             <span className="pay-right">
               <img className="card-mark" src={cardUrl} alt="Mastercard" />
               **** 6497
             </span>
           </div>
           <div className="split">
-            <span>Total Due</span>
+            <span>Total</span>
+            <span className="total">${total}</span>
           </div>
-          <p className="total">${total}</p>
         </div>
-        <p className="note">
-          Note: After payment you will enter the Comm Center. You can also open it later with the 10-character code.
-        </p>
+        <p className="hint">After payment you enter the Comm Center. You can also open it later with the 6-character code.</p>
       </form>
       </Screen>
     </div>
@@ -168,10 +175,10 @@ export function CommLoginScreen() {
           </PrimaryButton>
         }
       >
-      <h1 className="screen-title">Comm Center Login</h1>
+      <h1 className="screen-title">Comm Center</h1>
       <form id="comm-login" className="stack login" onSubmit={submit}>
         <label className="field">
-          <span className="field-label">Enter Name</span>
+          <span className="field-label">Name</span>
           <input
             className="text-input"
             value={guest.name}
@@ -179,7 +186,7 @@ export function CommLoginScreen() {
           />
         </label>
         <div className="field">
-          <span className="field-label">Enter Phone Number</span>
+          <span className="field-label">Phone</span>
           <PhoneField
             country={guest.country}
             phone={guest.phone}
@@ -189,7 +196,7 @@ export function CommLoginScreen() {
         </div>
         <div className="field">
           <span className="field-label" id="login-code">
-            Enter Code
+            Code
           </span>
           <CodeBoxes value={code} onChange={setCode} labelledBy="login-code" length={CODE_LENGTH} />
         </div>
@@ -204,11 +211,12 @@ export function CommCenterScreen() {
   const glass = useGlassEnter();
   const { messages, toggleRead, commAccess } = useApp();
   if (!commAccess) return <Navigate to="/comm-login" replace />;
+  const thread = messages.filter((message) => message.eventId === publicEvent.id);
   return (
     <div className={glass ? "glass-in" : "event-screen"}>
       <Screen backTo="/" backLabel="enter new event" backState={{ glass: true }}>
         <h1 className="screen-title">Comm Center</h1>
-        <MessageList messages={messages} showFrom onToggle={toggleRead} />
+        <MessageList messages={thread} showFrom onToggle={toggleRead} />
       </Screen>
     </div>
   );
