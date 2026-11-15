@@ -2,7 +2,12 @@ import { useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { hostEvents } from "../data";
 import { formatStamp, useApp } from "../state";
+import posterUrl from "../assets/afterparty-poster.jpg";
 import { MessageList, PrimaryButton, Screen, useGlassEnter } from "../components/ui";
+
+const EVENT_THUMBS = {
+  afterparty: posterUrl,
+};
 
 export function HostLoginScreen() {
   const navigate = useNavigate();
@@ -173,16 +178,22 @@ export function EventsScreen() {
     <Screen backTo="/host">
       <h1 className="screen-title">Events</h1>
       <EventTabs tab={tab} setTab={setTab} />
-      {events.map((event) => (
-        <article className="event-card" key={event.id}>
-          <div className="thumb" role="img" aria-label="" />
-          <h2 className="event-name">{event.name}</h2>
-          <div className="meta">
-            <span>{event.attendees.toLocaleString("en-US")} attendees</span>
-            <span>{event.revenue} revenue</span>
-          </div>
-        </article>
-      ))}
+      <div className={tab === "past" ? "events-grid events-grid-past" : "events-stack"}>
+        {events.map((event) => (
+          <article className="event-card" key={event.id}>
+            {EVENT_THUMBS[event.id] ? (
+              <img className="thumb" src={EVENT_THUMBS[event.id]} alt="" />
+            ) : (
+              <div className="thumb" role="img" aria-label="" />
+            )}
+            <h2 className="event-name">{event.name}</h2>
+            <div className="meta">
+              <span>{event.attendees.toLocaleString("en-US")} attendees</span>
+              <span>{event.revenue} revenue</span>
+            </div>
+          </article>
+        ))}
+      </div>
     </Screen>
   );
 }

@@ -633,8 +633,7 @@ button {
 
 .row,
 .msg,
-.finance-row,
-.event-card {
+.finance-row {
   border-bottom: 1px solid #000;
   background: #fff;
 }
@@ -703,19 +702,36 @@ button {
   font-weight: 500;
 }
 
+.events-stack,
+.events-grid {
+  width: min(960px, 100%);
+  margin: 0 auto;
+  padding: 28px 24px 48px;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 36px;
+  justify-items: center;
+  box-sizing: border-box;
+}
+
 .event-card {
-  display: block;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   width: 100%;
-  padding: 24px 0 20px;
-  border-left: 0;
-  border-right: 0;
-  border-top: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
   text-align: center;
 }
 
 .event-card.comms-pick {
+  display: block;
   padding: 22px 32px;
+  border-bottom: 1px solid #000;
   text-align: left;
+  align-items: stretch;
 }
 
 .event-card.comms-pick .event-name {
@@ -728,27 +744,48 @@ button {
 }
 
 .thumb {
-  width: min(280px, 78%);
+  display: block;
+  width: 200px;
+  max-width: 100%;
   height: auto;
-  aspect-ratio: 1080 / 1350;
-  margin: 0 auto 14px;
+  aspect-ratio: 3 / 4;
+  margin: 0 0 14px;
+  object-fit: cover;
   background: #e4e4e4;
+  flex: none;
 }
 
 .event-name {
-  margin: 0 24px;
-  font-size: 15px;
+  margin: 0;
+  max-width: 220px;
+  font-size: 14px;
   font-weight: 300;
+  line-height: 1.35;
 }
 
 .meta {
   margin-top: 8px;
   display: flex;
   justify-content: center;
-  gap: 20px;
+  flex-wrap: wrap;
+  gap: 6px 14px;
   font-size: 12px;
   font-weight: 300;
   color: #666;
+}
+
+@media (min-width: 900px) {
+  .events-grid-past {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 40px 32px;
+    justify-items: center;
+  }
+}
+
+@media (min-width: 1200px) {
+  .events-grid-past {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
 }
 
 .finance-list {
