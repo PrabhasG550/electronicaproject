@@ -21,6 +21,18 @@ export const hostEvents = {
       attendees: 10000,
       revenue: "$1,000,000",
     },
+    {
+      id: "memoirs",
+      name: "Memoirs of Hysteria Listening Party",
+      attendees: 1000,
+      revenue: "$1,000,000",
+    },
+    {
+      id: "seven-hills",
+      name: "Seven Hills Dance Listening Party + Song Josza III Afters Set",
+      attendees: 1000,
+      revenue: "$1,000,000",
+    },
   ],
   upcoming: [
     {
