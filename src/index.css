@@ -685,9 +685,9 @@ button {
   margin-top: 21px;
   border-top: 1px solid #000;
   border-bottom: 1px solid #000;
-  display: flex;
-  justify-content: space-between;
-  padding: 8px clamp(24px, 12vw, 74px);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  padding: 8px 0;
 }
 
 .tab {
@@ -696,6 +696,7 @@ button {
   padding: 0;
   font-size: 15px;
   font-weight: 300;
+  text-align: center;
 }
 
 .tab.active {
