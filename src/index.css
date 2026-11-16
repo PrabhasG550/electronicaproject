@@ -313,6 +313,17 @@ button {
 .schedule-check {
   margin-top: 0;
   margin-bottom: 4px;
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 1px solid #000;
+  gap: 12px;
+  font-size: 16px;
+}
+
+.schedule-check input {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
 }
 
 .schedule-when {
@@ -338,16 +349,16 @@ button {
 .schedule-calendar-btn {
   position: absolute;
   top: 50%;
-  right: 6px;
-  width: 34px;
-  height: 34px;
+  right: 4px;
+  width: 40px;
+  height: 40px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   padding: 0;
-  border: 0;
-  border-radius: 6px;
-  background: transparent;
+  border: 1px solid #000;
+  border-radius: 0;
+  background: #fff;
   transform: translateY(-50%);
 }
 
@@ -536,6 +547,27 @@ button {
   white-space: pre-wrap;
 }
 
+.event-promo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 100%;
+}
+
+.event-when,
+.event-lineup {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 300;
+  line-height: 1.4;
+  color: #444;
+}
+
+.event-lineup {
+  font-weight: 500;
+  color: #000;
+}
+
 .event-copy {
   width: 100%;
   margin: 0;
@@ -547,6 +579,62 @@ button {
   font-weight: 300;
   line-height: 1.45;
   white-space: pre-wrap;
+}
+
+.ticket-type {
+  border: 0;
+  margin: 0;
+  padding: 0;
+  min-width: 0;
+}
+
+.ticket-type-option {
+  margin-top: 0;
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 1px solid #000;
+}
+
+.ticket-type-option + .ticket-type-option {
+  margin-top: 10px;
+}
+
+.door-ticket {
+  width: min(560px, calc(100% - 48px));
+  margin: 8px auto 20px;
+  padding: 18px 20px;
+  border: 1px solid #000;
+  text-align: center;
+}
+
+.door-ticket-label {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 300;
+  color: #666;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.door-ticket-event {
+  margin: 10px 0 0;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.35;
+}
+
+.door-ticket-code {
+  margin: 12px 0 0;
+  font-size: 28px;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+}
+
+.door-ticket-hint {
+  margin: 10px 0 0;
+  font-size: 13px;
+  font-weight: 300;
+  color: #666;
 }
 
 @media (min-width: 900px) {
@@ -801,6 +889,44 @@ button {
   font-weight: 300;
 }
 
+.finance-currency {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.currency-select {
+  min-height: 36px;
+  padding: 6px 10px;
+  border: 1px solid #000;
+  background: #fff;
+  font-size: 15px;
+  font-weight: 300;
+}
+
+.finance-action {
+  display: block;
+  width: 100%;
+  border-left: 0;
+  border-right: 0;
+  border-top: 0;
+  cursor: pointer;
+}
+
+.finance-action:hover {
+  background: #f5f5f5;
+}
+
+.finance-status {
+  width: min(560px, calc(100% - 48px));
+  margin: 16px auto 0;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 300;
+  color: #444;
+}
+
 .finance-gap {
   height: 38px;
 }
@@ -839,7 +965,7 @@ button {
 }
 
 .msg {
-  padding: 18px 20px 22px;
+  padding: 20px 22px 26px;
 }
 
 .comm-events {
@@ -893,18 +1019,19 @@ button {
 }
 
 .comm-event .msg {
-  padding: 14px 24px 16px;
+  padding: 18px 24px 22px;
 }
 
 .comm-event .subject {
-  font-size: 16px;
+  font-size: 17px;
+  line-height: 1.35;
 }
 
 .comm-event .msg-body {
-  margin-top: 10px;
-  font-size: 14px;
-  line-height: 1.45;
-  color: #444;
+  margin-top: 12px;
+  font-size: 15px;
+  line-height: 1.55;
+  color: #333;
 }
 
 .from-row {

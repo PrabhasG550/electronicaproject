@@ -6,6 +6,17 @@ import cardUrl from "../assets/card.png";
 import posterUrl from "../assets/afterparty-poster.jpg";
 import { CodeBoxes, MessageList, PhoneField, PrimaryButton, Screen, useGlassEnter } from "../components/ui";
 
+function DoorTicketCard({ code, eventName }) {
+  return (
+    <div className="door-ticket">
+      <p className="door-ticket-label">In-person ticket</p>
+      <p className="door-ticket-event">{eventName}</p>
+      <p className="door-ticket-code">{code}</p>
+      <p className="door-ticket-hint">Show this code at the door for this event.</p>
+    </div>
+  );
+}
+
 export function HomeScreen() {
   const navigate = useNavigate();
   const glass = useGlassEnter();
@@ -61,6 +72,10 @@ export function EventScreen() {
           </aside>
           <div className="event-detail">
             <h1 className="event-title">{publicEvent.title}</h1>
+            <div className="event-promo">
+              <p className="event-when">{publicEvent.when}</p>
+              <p className="event-lineup">{publicEvent.lineup}</p>
+            </div>
             <div className="event-copy">
               <p>{publicEvent.description}</p>
             </div>
@@ -79,12 +94,17 @@ export function EventScreen() {
 export function CheckoutScreen() {
   const navigate = useNavigate();
   const glass = useGlassEnter();
-  const { guest, setGuest, addPurchase, grantCommAccess } = useApp();
+  const { guest, setGuest, addPurchase, grantCommAccess, ticketType, setTicketType } = useApp();
   const total = publicEvent.ticket + publicEvent.fee;
 
   function pay(event) {
     event.preventDefault();
-    addPurchase({ name: guest.name, phone: guest.phone });
+    addPurchase({
+      name: guest.name,
+      phone: guest.phone,
+      ticketType,
+      eventId: publicEvent.id,
+    });
     grantCommAccess();
     navigate("/comm", { state: { glass: true } });
   }
@@ -124,6 +144,29 @@ export function CheckoutScreen() {
           />
           <p className="hint">Required for location sharing. Stays private. SMS rates may apply.</p>
         </div>
+        <fieldset className="field ticket-type">
+          <legend className="field-label">
+            Ticket type <span className="required mark">*</span>
+          </legend>
+          <label className="check ticket-type-option">
+            <input
+              type="radio"
+              name="ticket-type"
+              checked={ticketType === "door"}
+              onChange={() => setTicketType("door")}
+            />
+            In-person (show code at door)
+          </label>
+          <label className="check ticket-type-option">
+            <input
+              type="radio"
+              name="ticket-type"
+              checked={ticketType === "digital"}
+              onChange={() => setTicketType("digital")}
+            />
+            Digital only (Comm Center access)
+          </label>
+        </fieldset>
         <div className="breakdown">
           <div className="split">
             <span>Ticket</span>
@@ -145,7 +188,7 @@ export function CheckoutScreen() {
             <span className="total">${total}</span>
           </div>
         </div>
-        <p className="hint">After payment you enter the Comm Center. You can also open it later with the 6-character code.</p>
+        <p className="hint">After payment you enter the Comm Center — no login step. You can also open it later with the 6-character code.</p>
       </form>
       </Screen>
     </div>
@@ -199,6 +242,7 @@ export function CommLoginScreen() {
             onCountry={(country) => setGuest({ ...guest, country })}
             onPhone={(phone) => setGuest({ ...guest, phone })}
           />
+          <p className="hint">Update your phone number here if it has changed.</p>
         </div>
         <div className="field">
           <span className="field-label" id="login-code">
@@ -215,7 +259,7 @@ export function CommLoginScreen() {
 
 export function CommCenterScreen() {
   const glass = useGlassEnter();
-  const { messages, toggleRead, commAccess } = useApp();
+  const { messages, toggleRead, commAccess, ticketType, purchases } = useApp();
   const grouped = allEvents
     .map((event) => ({
       event,
@@ -226,6 +270,13 @@ export function CommCenterScreen() {
     const withUnread = grouped.find((group) => group.thread.some((message) => message.unread));
     return withUnread?.event.id ?? grouped[0]?.event.id ?? null;
   });
+  const latestPurchase = purchases[purchases.length - 1];
+  const showDoorTicket = (latestPurchase?.ticketType ?? ticketType) !== "digital";
+  const ticketEventId = latestPurchase?.eventId || publicEvent.id;
+  const ticketEvent =
+    allEvents.find((event) => event.id === ticketEventId) ||
+    allEvents.find((event) => event.id === publicEvent.id);
+  const ticketEventName = ticketEvent?.name || publicEvent.title.replace(/\n/g, " ");
 
   if (!commAccess) return <Navigate to="/comm-login" replace />;
 
@@ -233,6 +284,7 @@ export function CommCenterScreen() {
     <div className={glass ? "glass-in" : "event-screen"}>
       <Screen backTo="/" backLabel="enter new event" backState={{ glass: true }}>
         <h1 className="screen-title">Comm Center</h1>
+        {showDoorTicket ? <DoorTicketCard code={TICKET_CODE} eventName={ticketEventName} /> : null}
         {grouped.length === 0 ? (
           <div className="thread-empty">
             <p className="empty-copy">No comms yet.</p>

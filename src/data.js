@@ -1,6 +1,8 @@
 export const publicEvent = {
   id: "afterparty",
   title: "MumbaiAndarground \nAfterparty",
+  when: "Sat · doors 11p · invite only",
+  lineup: "MAG · guests TBA",
   description:
     "The MumbaiAndarground Afterparty. Come prepared. Bring the light. Bring your heart. \n\nAddress and Info will be sent after buying ticket purchase. \n\nContact Info is required. All information will remain private.",
   ticket: 18,

@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { hostEvents } from "../data";
-import { formatStamp, useApp } from "../state";
+import { CURRENCIES, formatStamp, useApp } from "../state";
 import posterUrl from "../assets/afterparty-poster.jpg";
 import { MessageList, PrimaryButton, Screen, useGlassEnter } from "../components/ui";
 
@@ -145,7 +145,7 @@ export function DashboardScreen() {
           Finance
         </button>
         <button className="row" type="button" onClick={() => navigate("/comms")}>
-          Comms
+          Message ticket holders
         </button>
       </div>
     </Screen>
@@ -199,19 +199,66 @@ export function EventsScreen() {
 }
 
 export function FinanceScreen() {
+  const { currency, setCurrency } = useApp();
+  const [status, setStatus] = useState("");
+  const active = CURRENCIES.find((item) => item.code === currency) || CURRENCIES[0];
+  const available = { USD: 3400, INR: 283000, EUR: 3140 }[active.code];
+  const pending = { USD: 2900, INR: 241000, EUR: 2680 }[active.code];
+
+  function money(amount) {
+    return `${active.symbol}${amount.toLocaleString("en-US")}`;
+  }
+
   return (
     <Screen backTo="/host">
       <h1 className="screen-title">Finance</h1>
       <div className="finance-list">
-        <div className="finance-row">Available: $3,400</div>
-        <div className="finance-row">Pending: $2,900</div>
-        <div className="finance-row">Currency: US (USD)</div>
+        <div className="finance-row">Available: {money(available)}</div>
+        <div className="finance-row">Pending: {money(pending)}</div>
+        <label className="finance-row finance-currency">
+          <span>Currency</span>
+          <select
+            className="currency-select"
+            aria-label="Payment currency"
+            value={active.code}
+            onChange={(event) => {
+              setCurrency(event.target.value);
+              setStatus(`Currency set to ${event.target.value}.`);
+            }}
+          >
+            {CURRENCIES.map((item) => (
+              <option key={item.code} value={item.code}>
+                {item.label}
+              </option>
+            ))}
+          </select>
+        </label>
       </div>
       <div className="finance-gap" />
       <div className="finance-list">
-        <div className="finance-row">Transfers</div>
-        <div className="finance-row">Payout</div>
+        <button
+          className="finance-row finance-action"
+          type="button"
+          onClick={() => setStatus(`Transfer started for ${money(500)}.`)}
+        >
+          Transfers
+        </button>
+        <button
+          className="finance-row finance-action"
+          type="button"
+          onClick={() => setStatus(`Payout requested for ${money(available)}.`)}
+        >
+          Payout
+        </button>
+        <button
+          className="finance-row finance-action"
+          type="button"
+          onClick={() => setStatus(`Withdraw queued for ${money(available)}.`)}
+        >
+          Withdraw
+        </button>
       </div>
+      {status ? <p className="finance-status">{status}</p> : null}
     </Screen>
   );
 }
@@ -221,10 +268,20 @@ export function SendCommsScreen() {
   const { messages } = useApp();
   const [tab, setTab] = useState("upcoming");
   const events = hostEvents[tab];
+  const firstUpcoming = hostEvents.upcoming[0];
   return (
-    <Screen backTo="/host">
-      <h1 className="screen-title">Comms</h1>
-      <p className="screen-hint">Choose an event to message</p>
+    <Screen
+      backTo="/host"
+      cta={
+        firstUpcoming ? (
+          <PrimaryButton onClick={() => navigate(`/comms/${firstUpcoming.id}/new`)}>
+            New message
+          </PrimaryButton>
+        ) : null
+      }
+    >
+      <h1 className="screen-title">Message ticket holders</h1>
+      <p className="screen-hint">Pick an event, or start a new message for the next upcoming show.</p>
       <EventTabs tab={tab} setTab={setTab} />
       {events.map((event) => {
         const sent = messages.filter((message) => message.eventId === event.id).length;
@@ -257,7 +314,7 @@ export function CommThreadScreen() {
   return (
     <Screen
       backTo="/comms"
-      cta={<PrimaryButton onClick={() => navigate(`/comms/${eventId}/new`)}>New comm</PrimaryButton>}
+      cta={<PrimaryButton onClick={() => navigate(`/comms/${eventId}/new`)}>Write message</PrimaryButton>}
     >
       <h1 className="screen-title thread-title">{event.name}</h1>
       <MessageList messages={thread} />
@@ -321,15 +378,15 @@ export function NewCommScreen() {
       backTo={`/comms/${eventId}`}
       cta={
         <PrimaryButton type="submit" form="new-comm">
-          Send
+          Send message
         </PrimaryButton>
       }
     >
-      <h1 className="screen-title">New comm</h1>
+      <h1 className="screen-title">Write message</h1>
       <form id="new-comm" className="stack new-comm" onSubmit={submit}>
         <label className="check schedule-check">
           <input type="checkbox" checked={schedule} onChange={(event) => setSchedule(event.target.checked)} />
-          Schedule message
+          Schedule for later
         </label>
         {schedule ? (
           <div className="field schedule-when">

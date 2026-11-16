@@ -9,6 +9,12 @@ export const COMM_GUEST = {
   country: "+91",
 };
 
+export const CURRENCIES = [
+  { code: "USD", label: "US (USD)", symbol: "$" },
+  { code: "INR", label: "India (INR)", symbol: "₹" },
+  { code: "EUR", label: "EU (EUR)", symbol: "€" },
+];
+
 export const HOST = {
   email: "MumbaiAndarground@gmail.com",
   password: "********************************",
@@ -70,8 +76,10 @@ export function AppState({ children }) {
   const [guest, setGuest] = useState(COMM_GUEST);
   const [hostDraft, setHostDraft] = useState(HOST_DRAFT);
   const [hosts, setHosts] = useState([HOST]);
-  const [, setPurchases] = useState([]);
+  const [purchases, setPurchases] = useState([]);
   const [commAccess, setCommAccess] = useState(false);
+  const [currency, setCurrency] = useState("USD");
+  const [ticketType, setTicketType] = useState("door");
 
   const api = useMemo(
     () => ({
@@ -81,7 +89,12 @@ export function AppState({ children }) {
       hostDraft,
       setHostDraft,
       hosts,
+      purchases,
       commAccess,
+      currency,
+      setCurrency,
+      ticketType,
+      setTicketType,
       toggleRead(id) {
         setMessages((current) =>
           current.map((message) =>
@@ -95,11 +108,13 @@ export function AppState({ children }) {
       registerHost(host) {
         setHosts((current) => [...current, host]);
       },
-      addPurchase({ name, phone }) {
+      addPurchase({ name, phone, ticketType: kind, eventId }) {
         const ticket = {
           name: name.trim(),
           phone: phone.replace(/\D/g, ""),
           code: TICKET_CODE,
+          ticketType: kind || "door",
+          eventId: eventId || "afterparty",
         };
         setPurchases((current) => [...current, ticket]);
       },
@@ -107,7 +122,7 @@ export function AppState({ children }) {
         setCommAccess(true);
       },
     }),
-    [messages, guest, hostDraft, hosts, commAccess],
+    [messages, guest, hostDraft, hosts, purchases, commAccess, currency, ticketType],
   );
 
   return <AppContext.Provider value={api}>{children}</AppContext.Provider>;
