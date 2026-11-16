@@ -11,7 +11,11 @@ function DoorTicketCard({ code, eventName }) {
     <div className="door-ticket">
       <p className="door-ticket-label">In-person ticket</p>
       <p className="door-ticket-event">{eventName}</p>
-      <p className="door-ticket-code">{code}</p>
+      <div className="door-ticket-grow" aria-hidden="true" />
+      <p className="door-ticket-code">
+        <span>{code}</span>
+      </p>
+      <div className="door-ticket-grow" aria-hidden="true" />
       <p className="door-ticket-hint">Show this code at the door for this event.</p>
     </div>
   );

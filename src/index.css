@@ -600,11 +600,21 @@ button {
 }
 
 .door-ticket {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   width: min(560px, calc(100% - 48px));
-  margin: 8px auto 20px;
+  min-height: 168px;
+  margin: 20px auto;
   padding: 18px 20px;
   border: 1px solid #000;
   text-align: center;
+  box-sizing: border-box;
+}
+
+.door-ticket + .comm-events,
+.door-ticket + .thread-empty {
+  margin-top: 0;
 }
 
 .door-ticket-label {
@@ -620,20 +630,39 @@ button {
   margin: 10px 0 0;
   font-size: 16px;
   font-weight: 500;
-  line-height: 1.35;
+  line-height: 1.15;
+}
+
+.door-ticket-grow {
+  flex: 1 1 0;
+  width: 100%;
+  min-height: 16px;
 }
 
 .door-ticket-code {
-  margin: 12px 0 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  height: 24px;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+.door-ticket-code span {
+  display: block;
   font-size: 28px;
   font-weight: 500;
   letter-spacing: 0.18em;
+  line-height: 1;
 }
 
 .door-ticket-hint {
-  margin: 10px 0 0;
+  margin: 0;
   font-size: 13px;
   font-weight: 300;
+  line-height: 1.15;
   color: #666;
 }
 
@@ -970,7 +999,7 @@ button {
 
 .comm-events {
   width: min(560px, 100%);
-  margin: 12px auto 0;
+  margin: 20px auto 0;
   padding: 0 0 40px;
   border-top: 1px solid #000;
 }
@@ -1023,15 +1052,19 @@ button {
 }
 
 .comm-event .subject {
-  font-size: 17px;
-  line-height: 1.35;
+  margin-top: 8px;
+  font-size: 19px;
+  font-weight: 500;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
 }
 
 .comm-event .msg-body {
-  margin-top: 12px;
-  font-size: 15px;
+  margin-top: 8px;
+  font-size: 14px;
+  font-weight: 300;
   line-height: 1.55;
-  color: #333;
+  color: #555;
 }
 
 .from-row {
@@ -1060,20 +1093,21 @@ button {
 }
 
 .subject {
-  margin: 10px 0 0;
-  font-size: 18px;
-  font-weight: 300;
-  line-height: 1.25;
+  margin: 8px 0 0;
+  font-size: 20px;
+  font-weight: 500;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
 }
 
 .msg-body {
-  margin: 14px 0 0;
+  margin: 8px 0 0;
   width: 100%;
   max-width: 100%;
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 300;
-  line-height: 1.5;
-  color: #333;
+  line-height: 1.55;
+  color: #555;
   white-space: pre-wrap;
 }
 
